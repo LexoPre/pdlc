@@ -170,7 +170,7 @@
             box-shadow: 0 14px 30px rgba(37, 211, 102, 0.4);
         }
 
-        /* GALERÍA DE DESPLAZAMIENTO MANUAL PROGRESIVO */
+        /* GALERÍA */
         .gallery-section {
             margin-top: 10px;
         }
@@ -196,11 +196,75 @@
             border: 1px solid var(--border-light);
             background: #e2e8f0;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            cursor: pointer;
             transition: transform 0.2s ease;
         }
 
         .gallery-grid img:hover {
             transform: scale(1.01);
+        }
+
+        /* LIGHTBOX / VISOR EN PANTALLA COMPLETA (ESTILO TIKTOK / GALERÍA) */
+        #lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            touch-action: none;
+        }
+
+        #lightbox.active {
+            display: flex;
+        }
+
+        #lightbox img {
+            max-width: 90%;
+            max-height: 85vh;
+            object-fit: contain;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+
+        .lb-btn {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            font-size: 2rem;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            user-select: none;
+        }
+
+        .lb-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        #lb-prev { left: 20px; }
+        #lb-next { right: 20px; }
+        #lb-close { top: 20px; right: 20px; font-size: 1.8rem; }
+
+        .lb-counter {
+            position: absolute;
+            bottom: 25px;
+            color: white;
+            font-size: 1rem;
+            background: rgba(0,0,0,0.6);
+            padding: 6px 16px;
+            border-radius: 20px;
+            letter-spacing: 1px;
         }
 
         @keyframes fadeIn {
@@ -284,7 +348,7 @@
             <span>💬 Escríbenos por WhatsApp</span>
         </a>
 
-        <!-- GALERÍA DE LAS 72 FOTOS CON CARGA PROGRESIVA (LAZY LOADING) -->
+        <!-- GALERÍA DE LAS 72 FOTOS -->
         <div class="gallery-section">
             <h2>📸 Galería de Productos</h2>
             <div class="gallery-grid" id="galleryGrid">
@@ -297,20 +361,109 @@
         </footer>
     </div>
 
-    <script>
-        // Carga automática y optimizada de las 72 fotos de la carpeta "fotos"
-        const grid = document.getElementById('galleryGrid');
-        let galleryHTML = '';
+    <!-- VISOR EN PANTALLA COMPLETA (LIGHTBOX) -->
+    <div id="lightbox">
+        <button class="lb-btn" id="lb-close">&times;</button>
+        <button class="lb-btn" id="lb-prev">&#10094;</button>
+        <img id="lb-img" src="" alt="Ampliada">
+        <button class="lb-btn" id="lb-next">&#10095;</button>
+        <div class="lb-counter" id="lb-counter">1 / 72</div>
+    </div>
 
+    <script>
+        const grid = document.getElementById('galleryGrid');
+        const lightbox = document.getElementById('lightbox');
+        const lbImg = document.getElementById('lb-img');
+        const lbClose = document.getElementById('lb-close');
+        const lbPrev = document.getElementById('lb-prev');
+        const lbNext = document.getElementById('lb-next');
+        const lbCounter = document.getElementById('lb-counter');
+
+        let currentIndex = 0;
+        let photosList = [];
+
+        // Generar las rutas correctas para las 72 fotos (maneja 01 a 09 con cero, y 10 a 72 normales)
         for (let i = 1; i <= 72; i++) {
-            // Genera los nombres de archivo exactos (01.jpeg, 02.jpeg ... 72.jpeg)
             let fileName = i < 10 ? '0' + i + '.jpeg' : i + '.jpeg';
-            
-            // loading="lazy" hace que las fotos se descarguen justo un instante antes de que aparezcan en pantalla al bajar
-            galleryHTML += `<img src="fotos/${fileName}" alt="PDLC-PET Producto ${i}" loading="lazy" onerror="this.style.display='none'">`;
+            photosList.push(`fotos/${fileName}`);
         }
 
+        // Inyectar las fotos en la cuadrícula HTML
+        let galleryHTML = '';
+        photosList.forEach((ruta, index) => {
+            galleryHTML += `<img src="${ruta}" alt="PDLC-PET Producto ${index + 1}" loading="lazy" data-index="${index}" onerror="this.style.display='none'">`;
+        });
         grid.innerHTML = galleryHTML;
+
+        // Manejador de clics para abrir el visor en pantalla completa
+        grid.addEventListener('click', (e) => {
+            if (e.target.tagName === 'IMG') {
+                currentIndex = parseInt(e.target.getAttribute('data-index'));
+                openLightbox();
+            }
+        });
+
+        function openLightbox() {
+            lbImg.src = photosList[currentIndex];
+            lbCounter.textContent = `${currentIndex + 1} / ${photosList.length}`;
+            lightbox.classList.add('active');
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+        }
+
+        function showPrev() {
+            currentIndex = (currentIndex - 1 + photosList.length) % photosList.length;
+            lbImg.src = photosList[currentIndex];
+            lbCounter.textContent = `${currentIndex + 1} / ${photosList.length}`;
+        }
+
+        function showNext() {
+            currentIndex = (currentIndex + 1) % photosList.length;
+            lbImg.src = photosList[currentIndex];
+            lbCounter.textContent = `${currentIndex + 1} / ${photosList.length}`;
+        }
+
+        // Botones de control del visor
+        lbClose.addEventListener('click', closeLightbox);
+        lbPrev.addEventListener('click', showPrev);
+        lbNext.addEventListener('click', showNext);
+
+        // Cerrar al hacer clic fuera de la foto en el fondo negro
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) {
+                closeLightbox();
+            }
+        });
+
+        // Soporte para gestos táctiles (deslizar a los lados tipo TikTok / galería móvil)
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        lightbox.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, {passive: true});
+
+        lightbox.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            let diff = touchStartX - touchEndX;
+            if (Math.abs(diff) > 50) { // Umbral de deslizamiento
+                if (diff > 0) {
+                    showNext(); // Deslizó a la izquierda -> Siguiente
+                } else {
+                    showPrev(); // Deslizó a la derecha -> Anterior
+                }
+            }
+        }, {passive: true});
+
+        // Soporte para flechas del teclado en PC
+        document.addEventListener('keydown', (e) => {
+            if (!lightbox.classList.contains('active')) return;
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowLeft') showPrev();
+            if (e.key === 'ArrowRight') showNext();
+        });
     </script>
 
 </body>
