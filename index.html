@@ -42,7 +42,7 @@
         }
 
         .container {
-            max-width: 1100px; /* Ancho ampliado para escritorio */
+            max-width: 1200px; /* Contenedor más amplio para fotos más grandes */
             width: 100%;
             display: flex;
             flex-direction: column;
@@ -92,7 +92,7 @@
             color: var(--text-muted-light);
         }
 
-        /* CUADROS DE INFORMACIÓN EN DOS COLUMNAS PARA ESCRITORIO */
+        /* CUADROS DE INFORMACIÓN EN DOS COLUMNAS */
         .info-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -228,7 +228,7 @@
             box-shadow: 0 14px 30px rgba(37, 211, 102, 0.4);
         }
 
-        /* GALERÍA DE 4 COLUMNAS EN ESCRITORIO */
+        /* GALERÍA AMPLIADA */
         .gallery-section {
             margin-top: 10px;
         }
@@ -241,27 +241,27 @@
 
         .gallery-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr); /* 4 columnas para escritorio */
-            gap: 16px;
+            grid-template-columns: repeat(4, 1fr); /* 4 columnas grandes en escritorio */
+            gap: 20px;
             width: 100%;
         }
 
         .gallery-item {
             background: var(--card-light);
             border: 1px solid var(--border-light);
-            border-radius: 16px;
-            padding: 10px;
+            border-radius: 18px;
+            padding: 12px;
             box-shadow: 0 4px 15px rgba(150, 135, 176, 0.08);
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
 
         .gallery-item img {
             width: 100%;
-            height: 220px; /* Fotos más grandes y cómodas */
+            height: 280px; /* Fotos significativamente más grandes en escritorio */
             object-fit: cover;
-            border-radius: 10px;
+            border-radius: 12px;
             background: #e6e1ed;
             cursor: pointer;
             transition: transform 0.2s ease;
@@ -280,10 +280,10 @@
             background-color: var(--accent);
             color: white;
             text-decoration: none;
-            font-size: 0.95rem;
+            font-size: 1rem;
             font-weight: 600;
-            padding: 10px 12px;
-            border-radius: 10px;
+            padding: 12px;
+            border-radius: 12px;
             box-shadow: 0 4px 10px rgba(209, 154, 54, 0.25);
             transition: transform 0.2s ease, background-color 0.2s ease;
             text-align: center;
@@ -294,17 +294,17 @@
             background-color: var(--accent-hover);
         }
 
-        /* ADAPTACIÓN PARA MÓVILES (PANTALLAS PEQUEÑAS) */
+        /* ADAPTACIÓN MÓVIL CON FOTOS MÁS GRANDES Y CÓMODAS */
         @media (max-width: 768px) {
             .info-grid {
-                grid-template-columns: 1fr; /* 1 columna en celulares para las tarjetas */
+                grid-template-columns: 1fr;
             }
             .gallery-grid {
-                grid-template-columns: repeat(2, 1fr); /* 2 columnas en celulares para las fotos */
-                gap: 10px;
+                grid-template-columns: repeat(2, 1fr); /* 2 columnas en celulares pero con mayor altura */
+                gap: 12px;
             }
             .gallery-item img {
-                height: 160px;
+                height: 210px; /* Altura aumentada para celulares */
             }
         }
 
@@ -341,7 +341,7 @@
             background-color: var(--accent-hover);
         }
 
-        /* LIGHTBOX / VISOR EN PANTALLA COMPLETA */
+        /* LIGHTBOX / VISOR EN PANTALLA COMPLETA CON SOPORTE DE ZOOM TÁCTIL */
         #lightbox {
             position: fixed;
             top: 0;
@@ -354,21 +354,34 @@
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            touch-action: none;
+            touch-action: none; /* Evita comportamientos extraños del navegador al hacer zoom */
             padding: 20px;
+            overflow: hidden;
         }
 
         #lightbox.active {
             display: flex;
         }
 
-        #lightbox img {
+        .lightbox-img-container {
+            width: 100%;
+            height: 75vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #lb-img {
             max-width: 95vw;
             max-height: 75vh;
             object-fit: contain;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             cursor: pointer;
+            transition: transform 0.1s ease-out;
+            transform-origin: center center;
         }
 
         .lb-btn {
@@ -513,7 +526,7 @@
             <span>💬 Escríbenos por WhatsApp</span>
         </a>
 
-        <!-- GALERÍA DE LAS 72 FOTOS EN 4 COLUMNAS -->
+        <!-- GALERÍA DE LAS 72 FOTOS AMPLIADAS -->
         <div class="gallery-section">
             <h2>📸 Galería de productos</h2>
             <div class="gallery-grid" id="galleryGrid">
@@ -525,10 +538,12 @@
     <!-- BOTÓN FLOTANTE PARA VOLVER ARRIBA -->
     <button id="btn-scroll-top" title="Volver arriba">&#8679;</button>
 
-    <!-- VISOR EN PANTALLA COMPLETA (LIGHTBOX) -->
+    <!-- VISOR EN PANTALLA COMPLETA (LIGHTBOX CON ZOOM TÁCTIL) -->
     <div id="lightbox">
         <button class="lb-btn" id="lb-close">&times;</button>
-        <img id="lb-img" src="" alt="Foto Ampliada">
+        <div class="lightbox-img-container" id="imgContainer">
+            <img id="lb-img" src="" alt="Foto Ampliada">
+        </div>
         <div class="lb-footer">
             <a href="#" id="lb-lo-quiero" class="btn-lo-quiero" target="_blank">Lo quiero</a>
             <div class="lb-counter" id="lb-counter">1 / 72</div>
@@ -596,13 +611,23 @@
             }
         });
 
-        // Tocar la foto ampliada en pantalla completa pasa automáticamente a la siguiente foto
+        // Resetear zoom al cambiar de foto
+        let currentScale = 1;
+        function resetZoom() {
+            currentScale = 1;
+            lbImg.style.transform = `scale(1)`;
+        }
+
+        // Tocar la foto ampliada en pantalla completa pasa a la siguiente (si no está con zoom)
         lbImg.addEventListener('click', (e) => {
             e.stopPropagation();
-            showNext();
+            if (currentScale === 1) {
+                showNext();
+            }
         });
 
         function updateLightboxContent() {
+            resetZoom();
             let ruta = photosList[currentIndex];
             let photoUrl = baseUrl + ruta;
             let mensajeWhatsApp = encodeURIComponent(`Hola, vengo por su página y estoy interesado en sus productos. Me interesa este modelo: ${photoUrl}`);
@@ -619,6 +644,7 @@
 
         function closeLightbox() {
             lightbox.classList.remove('active');
+            resetZoom();
         }
 
         function showNext() {
@@ -639,38 +665,64 @@
             }
         });
 
-        // Gestos táctiles: Derecha / Abajo = Siguiente | Izquierda / Arriba = Anterior
+        // GESTIÓN DE TACTO, DESLIZAMIENTO Y PELLIZCAR PARA AMPLIAR (PINCH TO ZOOM)
         let touchStartX = 0;
         let touchStartY = 0;
         let touchEndX = 0;
         let touchEndY = 0;
+        let initialPinchDistance = null;
+
+        function getDistance(touches) {
+            let dx = touches[0].clientX - touches[1].clientX;
+            let dy = touches[0].clientY - touches[1].clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
 
         lightbox.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-            touchStartY = e.changedTouches[0].screenY;
+            if (e.touches.length === 2) {
+                initialPinchDistance = getDistance(e.touches);
+            } else if (e.touches.length === 1 && currentScale === 1) {
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+            }
+        }, {passive: true});
+
+        lightbox.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2 && initialPinchDistance !== null) {
+                let currentDistance = getDistance(e.touches);
+                let scaleFactor = currentDistance / initialPinchDistance;
+                let newScale = Math.min(Math.max(1, currentScale * scaleFactor), 4); // Zoom entre 1x y 4x
+                currentScale = newScale;
+                lbImg.style.transform = `scale(${currentScale})`;
+            }
         }, {passive: true});
 
         lightbox.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            touchEndY = e.changedTouches[0].screenY;
+            if (e.touches.length < 2) {
+                initialPinchDistance = null;
+            }
+            if (currentScale === 1 && e.changedTouches.length === 1) {
+                touchEndX = e.changedTouches[0].clientX;
+                touchEndY = e.changedTouches[0].clientY;
 
-            let diffX = touchStartX - touchEndX;
-            let diffY = touchStartY - touchEndY;
+                let diffX = touchStartX - touchEndX;
+                let diffY = touchStartY - touchEndY;
 
-            if (Math.abs(diffX) > Math.abs(diffY)) {
-                if (Math.abs(diffX) > 40) {
-                    if (diffX > 0) {
-                        showNext(); // Deslizar hacia la izquierda -> Siguiente
-                    } else {
-                        showPrev(); // Deslizar hacia la derecha -> Anterior
+                if (Math.abs(diffX) > Math.abs(diffY)) {
+                    if (Math.abs(diffX) > 40) {
+                        if (diffX > 0) {
+                            showNext(); // Deslizar izquierda -> Siguiente
+                        } else {
+                            showPrev(); // Deslizar derecha -> Anterior
+                        }
                     }
-                }
-            } else {
-                if (Math.abs(diffY) > 40) {
-                    if (diffY > 0) {
-                        showNext(); // Deslizar hacia abajo -> Siguiente
-                    } else {
-                        showPrev(); // Deslizar hacia arriba -> Anterior
+                } else {
+                    if (Math.abs(diffY) > 40) {
+                        if (diffY > 0) {
+                            showNext(); // Deslizar abajo -> Siguiente
+                        } else {
+                            showPrev(); // Deslizar arriba -> Anterior
+                        }
                     }
                 }
             }
