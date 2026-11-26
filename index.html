@@ -438,7 +438,7 @@
         let currentIndex = 0;
         let photosList = [];
 
-        // Generar las rutas correctas para las 72 fotos
+        // Generar las rutas correctas: del 1 al 9 llevan '0' al inicio (01.jpeg), del 10 al 72 van normales (10.jpeg)
         for (let i = 1; i <= 72; i++) {
             let fileName = i < 10 ? '0' + i + '.jpeg' : i + '.jpeg';
             photosList.push(`fotos/${fileName}`);
@@ -507,7 +507,7 @@
             }
         });
 
-        // Gestos táctiles mejorados: Derecha = Siguiente, Izquierda = Anterior, Abajo = Siguiente, Arriba = Anterior
+        // Gestos táctiles: Derecha/Abajo = Siguiente, Izquierda/Arriba = Anterior
         let touchStartX = 0;
         let touchStartY = 0;
         let touchEndX = 0;
@@ -525,7 +525,6 @@
             let diffX = touchStartX - touchEndX;
             let diffY = touchStartY - touchEndY;
 
-            // Determinar si el deslizamiento fue principalmente horizontal o vertical
             if (Math.abs(diffX) > Math.abs(diffY)) {
                 if (Math.abs(diffX) > 40) {
                     if (diffX > 0) {
@@ -545,7 +544,7 @@
             }
         }, {passive: true});
 
-        // Soporte de flechas en el teclado (Derecha/Abajo = Siguiente, Izquierda/Arriba = Anterior)
+        // Soporte de flechas en el teclado
         document.addEventListener('keydown', (e) => {
             if (!lightbox.classList.contains('active')) return;
             if (e.key === 'Escape') closeLightbox();
