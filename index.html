@@ -11,6 +11,7 @@
             --primary: #9687B0;
             --primary-dark: #7a6c94;
             --accent: #D19A36;
+            --accent-hover: #b8852c;
             --whatsapp: #25D366;
             --bg-light: #fbf9fd;
             --card-light: #ffffff;
@@ -216,26 +217,26 @@
             transform: scale(1.01);
         }
 
-        /* Botón "Lo quiero" debajo de cada foto */
+        /* Botón "Lo quiero" en tono #D19A36 */
         .btn-lo-quiero {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            background-color: var(--whatsapp);
+            background-color: var(--accent);
             color: white;
             text-decoration: none;
             font-size: 1rem;
             font-weight: 600;
             padding: 12px 20px;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.25);
+            box-shadow: 0 4px 12px rgba(209, 154, 54, 0.3);
             transition: transform 0.2s ease, background-color 0.2s ease;
         }
 
         .btn-lo-quiero:hover {
             transform: scale(1.01);
-            background-color: #22bf5b;
+            background-color: var(--accent-hover);
         }
 
         /* LIGHTBOX / VISOR EN PANTALLA COMPLETA */
@@ -407,7 +408,7 @@
         <div class="gallery-section">
             <h2>📸 Galería de Productos</h2>
             <div class="gallery-grid" id="galleryGrid">
-                <!-- Se inyectan dinámicamente las 72 fotos y sus botones mediante JavaScript -->
+                <!-- Se inyectan dinámicamente las 72 fotos mediante JavaScript -->
             </div>
         </div>
 
@@ -421,7 +422,7 @@
         <button class="lb-btn" id="lb-close">&times;</button>
         <img id="lb-img" src="" alt="Ampliada">
         <div class="lb-footer">
-            <a href="#" id="lb-lo-quiero" class="btn-lo-quiero" target="_blank">💚 Lo quiero</a>
+            <a href="#" id="lb-lo-quiero" class="btn-lo-quiero" target="_blank">Lo quiero</a>
             <div class="lb-counter" id="lb-counter">1 / 72</div>
         </div>
     </div>
@@ -443,10 +444,9 @@
             photosList.push(`fotos/${fileName}`);
         }
 
-        // Obtener la URL base actual para que WhatsApp comparta el enlace exacto de la foto
         const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
 
-        // Inyectar las fotos con su tarjeta y botón individual en el HTML
+        // Inyectar las fotos con su tarjeta y botón individual
         let galleryHTML = '';
         photosList.forEach((ruta, index) => {
             let photoUrl = baseUrl + ruta;
@@ -456,13 +456,13 @@
             galleryHTML += `
                 <div class="gallery-item">
                     <img src="${ruta}" alt="PDLC-PET Producto ${index + 1}" loading="lazy" data-index="${index}" onerror="this.parentElement.style.display='none'">
-                    <a href="${waLink}" target="_blank" class="btn-lo-quiero">💚 Lo quiero</a>
+                    <a href="${waLink}" target="_blank" class="btn-lo-quiero">Lo quiero</a>
                 </div>
             `;
         });
         grid.innerHTML = galleryHTML;
 
-        // Manejador de clics en las imágenes para abrir el visor en pantalla completa
+        // Abrir visor
         grid.addEventListener('click', (e) => {
             if (e.target.tagName === 'IMG') {
                 currentIndex = parseInt(e.target.getAttribute('data-index'));
@@ -501,40 +501,56 @@
 
         lbClose.addEventListener('click', closeLightbox);
 
-        // Cerrar al hacer clic en el fondo oscuro
         lightbox.addEventListener('click', (e) => {
             if (e.target === lightbox) {
                 closeLightbox();
             }
         });
 
-        // Gestos táctiles en pantalla completa: Deslizar hacia ABAJO = Siguiente | Deslizar hacia ARRIBA = Anterior
+        // Gestos táctiles mejorados: Derecha = Siguiente, Izquierda = Anterior, Abajo = Siguiente, Arriba = Anterior
+        let touchStartX = 0;
         let touchStartY = 0;
+        let touchEndX = 0;
         let touchEndY = 0;
 
         lightbox.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
             touchStartY = e.changedTouches[0].screenY;
         }, {passive: true});
 
         lightbox.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
             touchEndY = e.changedTouches[0].screenY;
-            let diff = touchStartY - touchEndY;
-            
-            if (Math.abs(diff) > 40) { // Sensibilidad del gesto
-                if (diff > 0) {
-                    showNext(); // Deslizar hacia abajo -> Siguiente foto
-                } else {
-                    showPrev(); // Deslizar hacia arriba -> Anterior foto
+
+            let diffX = touchStartX - touchEndX;
+            let diffY = touchStartY - touchEndY;
+
+            // Determinar si el deslizamiento fue principalmente horizontal o vertical
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                if (Math.abs(diffX) > 40) {
+                    if (diffX > 0) {
+                        showNext(); // Deslizar hacia la izquierda -> Siguiente
+                    } else {
+                        showPrev(); // Deslizar hacia la derecha -> Anterior
+                    }
+                }
+            } else {
+                if (Math.abs(diffY) > 40) {
+                    if (diffY > 0) {
+                        showNext(); // Deslizar hacia abajo -> Siguiente
+                    } else {
+                        showPrev(); // Deslizar hacia arriba -> Anterior
+                    }
                 }
             }
         }, {passive: true});
 
-        // Soporte de flechas en el teclado (Abajo = Siguiente, Arriba = Anterior)
+        // Soporte de flechas en el teclado (Derecha/Abajo = Siguiente, Izquierda/Arriba = Anterior)
         document.addEventListener('keydown', (e) => {
             if (!lightbox.classList.contains('active')) return;
             if (e.key === 'Escape') closeLightbox();
-            if (e.key === 'ArrowUp') showPrev();
-            if (e.key === 'ArrowDown') showNext();
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') showPrev();
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') showNext();
         });
     </script>
 
