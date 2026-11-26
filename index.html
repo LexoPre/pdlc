@@ -1,3 +1,13 @@
+(function () {
+  // Empuja estados adicionales al historial para bloquear el botón de retroceso
+  window.history.pushState(null, "", window.location.href);
+  window.history.pushState(null, "", window.location.href);
+
+  window.addEventListener("popstate", function () {
+    // Vuelve a forzar el estado para retener al usuario en la página
+    window.history.pushState(null, "", window.location.href);
+  });
+})();
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -38,7 +48,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px 4px; /* Márgenes exteriores mínimos en celular */
+            padding: 20px 4px;
         }
 
         .container {
@@ -247,7 +257,7 @@
 
         .gallery-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr); /* 4 columnas grandes en escritorio */
+            grid-template-columns: repeat(4, 1fr);
             gap: 14px;
             width: 100%;
         }
@@ -265,7 +275,7 @@
 
         .gallery-item img {
             width: 100%;
-            height: 300px; /* Fotos muy grandes en escritorio */
+            height: 300px;
             object-fit: cover;
             border-radius: 12px;
             background: #e6e1ed;
@@ -300,21 +310,21 @@
             background-color: var(--accent-hover);
         }
 
-        /* ADAPTACIÓN MÓVIL CON FOTOS AMPLIADAS Y MÁRGENES MÍNIMOS */
+        /* ADAPTACIÓN MÓVIL */
         @media (max-width: 768px) {
             body {
-                padding: 10px 2px; /* Márgenes laterales casi a cero en celulares */
+                padding: 10px 2px;
             }
             .info-grid {
                 grid-template-columns: 1fr;
                 gap: 10px;
             }
             .gallery-grid {
-                grid-template-columns: repeat(2, 1fr); /* 2 columnas en celulares */
+                grid-template-columns: repeat(2, 1fr);
                 gap: 8px;
             }
             .gallery-item img {
-                height: 240px; /* Fotos mucho más grandes y llamativas en celulares */
+                height: 240px;
             }
         }
 
@@ -351,7 +361,7 @@
             background-color: var(--accent-hover);
         }
 
-        /* LIGHTBOX / VISOR EN PANTALLA COMPLETA CON ZOOM TÁCTIL */
+        /* LIGHTBOX / VISOR EN PANTALLA COMPLETA NATIVO */
         #lightbox {
             position: fixed;
             top: 0;
@@ -364,9 +374,8 @@
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            touch-action: none;
             padding: 10px;
-            overflow: hidden;
+            overflow: auto; /* Permite desplazamiento y zoom nativo del navegador */
         }
 
         #lightbox.active {
@@ -375,23 +384,21 @@
 
         .lightbox-img-container {
             width: 100%;
-            height: 75vh;
+            flex-grow: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
             position: relative;
+            overflow: auto;
         }
 
         #lb-img {
-            max-width: 98vw;
-            max-height: 78vh;
+            max-width: 95vw;
+            max-height: 80vh;
             object-fit: contain;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             cursor: pointer;
-            transition: transform 0.1s ease-out;
-            transform-origin: center center;
         }
 
         .lb-btn {
@@ -433,20 +440,11 @@
             gap: 10px;
             width: 100%;
             max-width: 340px;
+            padding-bottom: 15px;
         }
 
         #lb-lo-quiero {
             width: 100%;
-        }
-
-        #lb-counter {
-            color: #ffffff;
-            font-size: 0.95rem;
-            background: rgba(150, 135, 176, 0.4);
-            padding: 4px 14px;
-            border-radius: 20px;
-            letter-spacing: 1px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         @keyframes fadeIn {
@@ -550,7 +548,7 @@
     <!-- BOTÓN FLOTANTE PARA VOLVER ARRIBA -->
     <button id="btn-scroll-top" title="Volver arriba">&#8679;</button>
 
-    <!-- VISOR EN PANTALLA COMPLETA (LIGHTBOX CON ZOOM TÁCTIL) -->
+    <!-- VISOR EN PANTALLA COMPLETA (LIGHTBOX CON ZOOM NATIVO) -->
     <div id="lightbox">
         <button class="lb-btn" id="lb-close">&times;</button>
         <div class="lightbox-img-container" id="imgContainer">
@@ -558,7 +556,6 @@
         </div>
         <div class="lb-footer">
             <a href="#" id="lb-lo-quiero" class="btn-lo-quiero" target="_blank">Lo quiero</a>
-            <div class="lb-counter" id="lb-counter">1 / 72</div>
         </div>
     </div>
 
@@ -568,7 +565,6 @@
         const lbImg = document.getElementById('lb-img');
         const lbClose = document.getElementById('lb-close');
         const lbLoQuiero = document.getElementById('lb-lo-quiero');
-        const lbCounter = document.getElementById('lb-counter');
         const btnScrollTop = document.getElementById('btn-scroll-top');
 
         let currentIndex = 0;
@@ -623,30 +619,19 @@
             }
         });
 
-        // Resetear zoom al cambiar de foto
-        let currentScale = 1;
-        function resetZoom() {
-            currentScale = 1;
-            lbImg.style.transform = `scale(1)`;
-        }
-
-        // Tocar la foto ampliada en pantalla completa pasa a la siguiente (si no está con zoom)
+        // Tocar la foto ampliada en pantalla completa pasa a la siguiente
         lbImg.addEventListener('click', (e) => {
             e.stopPropagation();
-            if (currentScale === 1) {
-                showNext();
-            }
+            showNext();
         });
 
         function updateLightboxContent() {
-            resetZoom();
             let ruta = photosList[currentIndex];
             let photoUrl = baseUrl + ruta;
             let mensajeWhatsApp = encodeURIComponent(`Hola, vengo por su página y estoy interesado en sus productos. Me interesa este modelo: ${photoUrl}`);
             
             lbImg.src = ruta;
             lbLoQuiero.href = `https://wa.me/51944496046?text=${mensajeWhatsApp}`;
-            lbCounter.textContent = `${currentIndex + 1} / ${photosList.length}`;
         }
 
         function openLightbox() {
@@ -656,7 +641,6 @@
 
         function closeLightbox() {
             lightbox.classList.remove('active');
-            resetZoom();
         }
 
         function showNext() {
@@ -677,45 +661,21 @@
             }
         });
 
-        // GESTIÓN DE TACTO, DESLIZAMIENTO Y PELLIZCAR PARA AMPLIAR (PINCH TO ZOOM)
+        // Gestos táctiles simples para deslizar entre fotos
         let touchStartX = 0;
         let touchStartY = 0;
-        let touchEndX = 0;
-        let touchEndY = 0;
-        let initialPinchDistance = null;
-
-        function getDistance(touches) {
-            let dx = touches[0].clientX - touches[1].clientX;
-            let dy = touches[0].clientY - touches[1].clientY;
-            return Math.sqrt(dx * dx + dy * dy);
-        }
 
         lightbox.addEventListener('touchstart', (e) => {
-            if (e.touches.length === 2) {
-                initialPinchDistance = getDistance(e.touches);
-            } else if (e.touches.length === 1 && currentScale === 1) {
+            if (e.touches.length === 1) {
                 touchStartX = e.touches[0].clientX;
                 touchStartY = e.touches[0].clientY;
             }
         }, {passive: true});
 
-        lightbox.addEventListener('touchmove', (e) => {
-            if (e.touches.length === 2 && initialPinchDistance !== null) {
-                let currentDistance = getDistance(e.touches);
-                let scaleFactor = currentDistance / initialPinchDistance;
-                let newScale = Math.min(Math.max(1, currentScale * scaleFactor), 4);
-                currentScale = newScale;
-                lbImg.style.transform = `scale(${currentScale})`;
-            }
-        }, {passive: true});
-
         lightbox.addEventListener('touchend', (e) => {
-            if (e.touches.length < 2) {
-                initialPinchDistance = null;
-            }
-            if (currentScale === 1 && e.changedTouches.length === 1) {
-                touchEndX = e.changedTouches[0].clientX;
-                touchEndY = e.changedTouches[0].clientY;
+            if (e.changedTouches.length === 1) {
+                let touchEndX = e.changedTouches[0].clientX;
+                let touchEndY = e.changedTouches[0].clientY;
 
                 let diffX = touchStartX - touchEndX;
                 let diffY = touchStartY - touchEndY;
@@ -723,14 +683,6 @@
                 if (Math.abs(diffX) > Math.abs(diffY)) {
                     if (Math.abs(diffX) > 40) {
                         if (diffX > 0) {
-                            showNext();
-                        } else {
-                            showPrev();
-                        }
-                    }
-                } else {
-                    if (Math.abs(diffY) > 40) {
-                        if (diffY > 0) {
                             showNext();
                         } else {
                             showPrev();
