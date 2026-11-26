@@ -38,15 +38,15 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px 10px;
+            padding: 30px 15px;
         }
 
         .container {
-            max-width: 680px;
+            max-width: 1100px; /* Ancho ampliado para escritorio */
             width: 100%;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 25px;
             animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -78,7 +78,7 @@
         }
 
         h1 {
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             font-weight: 900;
             letter-spacing: -1px;
             background: linear-gradient(90deg, var(--primary), var(--accent));
@@ -88,11 +88,17 @@
         }
 
         .subtitle {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             color: var(--text-muted-light);
         }
 
-        /* Tarjetas */
+        /* CUADROS DE INFORMACIÓN EN DOS COLUMNAS PARA ESCRITORIO */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
         .card {
             background: var(--card-light);
             border: 1px solid var(--border-light);
@@ -100,6 +106,9 @@
             padding: 24px;
             box-shadow: 0 4px 20px rgba(150, 135, 176, 0.08);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .card:hover {
@@ -211,53 +220,46 @@
             border-radius: 16px;
             box-shadow: 0 10px 25px rgba(37, 211, 102, 0.3);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
-            margin-top: 10px;
+            width: 100%;
         }
 
         .btn-whatsapp:hover {
-            transform: scale(1.02);
+            transform: scale(1.01);
             box-shadow: 0 14px 30px rgba(37, 211, 102, 0.4);
         }
 
-        /* GALERÍA EN DOS COLUMNAS */
+        /* GALERÍA DE 4 COLUMNAS EN ESCRITORIO */
         .gallery-section {
             margin-top: 10px;
         }
 
         .gallery-section h2 {
-            font-size: 1.3rem;
-            margin-bottom: 15px;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
             color: var(--primary);
         }
 
         .gallery-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 2 columnas exactas */
-            gap: 12px;
+            grid-template-columns: repeat(4, 1fr); /* 4 columnas para escritorio */
+            gap: 16px;
             width: 100%;
-        }
-
-        @media (max-width: 480px) {
-            .gallery-grid {
-                grid-template-columns: repeat(2, 1fr); /* Mantiene 2 columnas incluso en celulares pequeños */
-                gap: 8px;
-            }
         }
 
         .gallery-item {
             background: var(--card-light);
             border: 1px solid var(--border-light);
             border-radius: 16px;
-            padding: 8px;
+            padding: 10px;
             box-shadow: 0 4px 15px rgba(150, 135, 176, 0.08);
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
         }
 
         .gallery-item img {
             width: 100%;
-            height: 180px; /* Altura adaptada para dos columnas */
+            height: 220px; /* Fotos más grandes y cómodas */
             object-fit: cover;
             border-radius: 10px;
             background: #e6e1ed;
@@ -269,7 +271,7 @@
             transform: scale(1.02);
         }
 
-        /* Botón "Lo quiero" ajustado a dos columnas */
+        /* Botón "Lo quiero" */
         .btn-lo-quiero {
             display: flex;
             align-items: center;
@@ -278,9 +280,9 @@
             background-color: var(--accent);
             color: white;
             text-decoration: none;
-            font-size: 0.85rem;
+            font-size: 0.95rem;
             font-weight: 600;
-            padding: 8px 10px;
+            padding: 10px 12px;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(209, 154, 54, 0.25);
             transition: transform 0.2s ease, background-color 0.2s ease;
@@ -290,6 +292,20 @@
         .btn-lo-quiero:hover {
             transform: scale(1.02);
             background-color: var(--accent-hover);
+        }
+
+        /* ADAPTACIÓN PARA MÓVILES (PANTALLAS PEQUEÑAS) */
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr; /* 1 columna en celulares para las tarjetas */
+            }
+            .gallery-grid {
+                grid-template-columns: repeat(2, 1fr); /* 2 columnas en celulares para las fotos */
+                gap: 10px;
+            }
+            .gallery-item img {
+                height: 160px;
+            }
         }
 
         /* BOTÓN FLOTANTE VOLVER ARRIBA */
@@ -434,58 +450,61 @@
             <p class="subtitle">Accesorios de madera personalizados para mascotas</p>
         </header>
 
-        <!-- Ubicación y horario -->
-        <div class="card">
-            <h2>📍 Ubicación y horarios</h2>
-            <ul class="info-list">
-                <li>
-                    <span class="icon">🏠</span>
-                    <div><strong>Taller:</strong> <a href="https://maps.app.goo.gl/4j9zkG5rwXwkxeFo9" target="_blank" class="map-link">Calle Chachani 185, Maranga, San Miguel 🗺️</a></div>
-                </li>
-                <li>
-                    <span class="icon">⏰</span>
-                    <div><strong>Horario de atención:</strong> 8:00 a.m. a 7:00 p.m.</div>
-                </li>
-            </ul>
-        </div>
-
-        <!-- Tiempos de entrega -->
-        <div class="card">
-            <h2>📦 Tiempos de entrega</h2>
-            <ul class="info-list">
-                <li>
-                    <span class="icon">⏳</span>
-                    <div><strong>Pedidos nuevos:</strong> 7 días hábiles de elaboración.</div>
-                </li>
-                <li>
-                    <span class="icon">⚡</span>
-                    <div><strong>Stock disponible:</strong> Listo para recojo inmediato en taller.</div>
-                </li>
-                <li>
-                    <span class="icon">🛡️</span>
-                    <div><strong>Garantía operativa:</strong> Contamos con márgenes calculados para imprevistos y asegurar la calidad.</div>
-                </li>
-            </ul>
-        </div>
-
-        <!-- Redes sociales -->
-        <div class="card">
-            <h2>📱 Redes sociales</h2>
-            <p style="margin-bottom: 12px; color: var(--text-muted-light);">Síguenos y conoce más de nuestro trabajo:</p>
-            <div class="social-links">
-                <a href="https://www.tiktok.com/@nombre" target="_blank" class="social-btn">TikTok</a>
-                <a href="https://www.instagram.com/@ombre" target="_blank" class="social-btn">Instagram</a>
+        <!-- SECCIÓN DE CUADROS EN DOS COLUMNAS -->
+        <div class="info-grid">
+            <!-- Ubicación y horario -->
+            <div class="card">
+                <h2>📍 Ubicación y horarios</h2>
+                <ul class="info-list">
+                    <li>
+                        <span class="icon">🏠</span>
+                        <div><strong>Taller:</strong> <a href="https://maps.app.goo.gl/4j9zkG5rwXwkxeFo9" target="_blank" class="map-link">Calle Chachani 185, Maranga, San Miguel 🗺️</a></div>
+                    </li>
+                    <li>
+                        <span class="icon">⏰</span>
+                        <div><strong>Horario de atención:</strong> 8:00 a.m. a 7:00 p.m.</div>
+                    </li>
+                </ul>
             </div>
-        </div>
 
-        <!-- Medios de pago -->
-        <div class="card">
-            <h2>💳 Medios de pago</h2>
-            <p style="margin-bottom: 12px; color: var(--text-muted-light);">Aceptamos los siguientes métodos de forma segura:</p>
-            <div class="badge-container">
-                <div class="badge">Yape</div>
-                <div class="badge">Efectivo</div>
-                <div class="badge">Tarjetas</div>
+            <!-- Tiempos de entrega -->
+            <div class="card">
+                <h2>📦 Tiempos de entrega</h2>
+                <ul class="info-list">
+                    <li>
+                        <span class="icon">⏳</span>
+                        <div><strong>Pedidos nuevos:</strong> 7 días hábiles de elaboración.</div>
+                    </li>
+                    <li>
+                        <span class="icon">⚡</span>
+                        <div><strong>Stock disponible:</strong> Listo para recojo inmediato en taller.</div>
+                    </li>
+                    <li>
+                        <span class="icon">🛡️</span>
+                        <div><strong>Garantía operativa:</strong> Contamos con márgenes calculados para imprevistos y asegurar la calidad.</div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Redes sociales -->
+            <div class="card">
+                <h2>📱 Redes sociales</h2>
+                <p style="margin-bottom: 12px; color: var(--text-muted-light);">Síguenos y conoce más de nuestro trabajo:</p>
+                <div class="social-links">
+                    <a href="https://www.tiktok.com/@nombre" target="_blank" class="social-btn">TikTok</a>
+                    <a href="https://www.instagram.com/@ombre" target="_blank" class="social-btn">Instagram</a>
+                </div>
+            </div>
+
+            <!-- Medios de pago -->
+            <div class="card">
+                <h2>💳 Medios de pago</h2>
+                <p style="margin-bottom: 12px; color: var(--text-muted-light);">Aceptamos los siguientes métodos de forma segura:</p>
+                <div class="badge-container">
+                    <div class="badge">Yape</div>
+                    <div class="badge">Efectivo</div>
+                    <div class="badge">Tarjetas</div>
+                </div>
             </div>
         </div>
 
@@ -494,7 +513,7 @@
             <span>💬 Escríbenos por WhatsApp</span>
         </a>
 
-        <!-- GALERÍA DE LAS 72 FOTOS EN DOS COLUMNAS -->
+        <!-- GALERÍA DE LAS 72 FOTOS EN 4 COLUMNAS -->
         <div class="gallery-section">
             <h2>📸 Galería de productos</h2>
             <div class="gallery-grid" id="galleryGrid">
