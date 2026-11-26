@@ -9,7 +9,6 @@
     <style>
         :root {
             --primary: #2563eb;
-            --primary-dark: #1d4ed8;
             --whatsapp: #25D366;
             --bg-light: #f8fafc;
             --card-light: #ffffff;
@@ -51,20 +50,24 @@
         }
 
         .logo-box {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #2563eb, #38bdf8);
-            border-radius: 20px;
+            width: 90px;
+            height: 90px;
+            background: #ffffff;
+            border: 2px solid var(--border-light);
+            border-radius: 22px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 15px;
-            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.2);
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
             animation: float 3s ease-in-out infinite;
         }
 
-        .logo-box span {
-            font-size: 2.2rem;
+        .logo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         h1 {
@@ -167,61 +170,37 @@
             box-shadow: 0 14px 30px rgba(37, 211, 102, 0.4);
         }
 
-        /* SECCIÓN DE DESPLAZAMIENTO VERTICAL INFINITO (GALERÍA FOTOS) */
-        .infinite-scroll-section {
+        /* GALERÍA DE DESPLAZAMIENTO MANUAL PROGRESIVO */
+        .gallery-section {
             margin-top: 10px;
-            text-align: center;
         }
 
-        .infinite-scroll-section h2 {
+        .gallery-section h2 {
             font-size: 1.3rem;
             margin-bottom: 15px;
             color: var(--text-light);
-            text-align: left;
         }
 
-        .scroll-container {
-            width: 100%;
-            height: 420px;
-            overflow: hidden;
-            position: relative;
-            border-radius: 20px;
-            border: 1px solid var(--border-light);
-            background: var(--card-light);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
-        }
-
-        .scroll-track {
+        .gallery-grid {
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            position: absolute;
+            gap: 16px;
             width: 100%;
-            padding: 15px;
-            animation: infiniteVerticalScroll 120s linear infinite;
         }
 
-        .scroll-track:hover {
-            animation-play-state: paused;
-        }
-
-        .scroll-track img {
+        .gallery-grid img {
             width: 100%;
-            height: 240px;
+            height: 320px;
             object-fit: cover;
-            border-radius: 14px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-radius: 16px;
             border: 1px solid var(--border-light);
             background: #e2e8f0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease;
         }
 
-        @keyframes infiniteVerticalScroll {
-            0% {
-                transform: translateY(0);
-            }
-            100% {
-                transform: translateY(-50%);
-            }
+        .gallery-grid img:hover {
+            transform: scale(1.01);
         }
 
         @keyframes fadeIn {
@@ -246,10 +225,10 @@
 <body>
 
     <div class="container">
-        <!-- Encabezado -->
+        <!-- Encabezado con Logo -->
         <header>
             <div class="logo-box">
-                <span>🪵</span>
+                <img src="fotos/Logo.jpeg" alt="PDLC-PET Logo" onerror="this.parentElement.innerHTML='<span>🪵</span>'">
             </div>
             <h1>PDLC-PET</h1>
             <p class="subtitle">Accesorios de Madera Personalizados para Mascotas</p>
@@ -305,13 +284,11 @@
             <span>💬 Escríbenos por WhatsApp</span>
         </a>
 
-        <!-- GALERÍA DE FOTOS CON DESPLAZAMIENTO VERTICAL INFINITO AUTOMÁTICO -->
-        <div class="infinite-scroll-section">
+        <!-- GALERÍA DE LAS 72 FOTOS CON CARGA PROGRESIVA (LAZY LOADING) -->
+        <div class="gallery-section">
             <h2>📸 Galería de Productos</h2>
-            <div class="scroll-container">
-                <div class="scroll-track" id="galeriaTrack">
-                    <!-- Las 72 fotos se cargan automáticamente aquí mediante el script de abajo -->
-                </div>
+            <div class="gallery-grid" id="galleryGrid">
+                <!-- Se inyectan dinámicamente las 72 fotos mediante JavaScript -->
             </div>
         </div>
 
@@ -321,36 +298,19 @@
     </div>
 
     <script>
-        // Carga automática de las 72 fotos desde la carpeta "fotos"
-        const track = document.getElementById('galeriaTrack');
-        let htmlContent = '';
+        // Carga automática y optimizada de las 72 fotos de la carpeta "fotos"
+        const grid = document.getElementById('galleryGrid');
+        let galleryHTML = '';
 
-        // Función auxiliar para formatear los números (01, 02... hasta 072)
-        function pad(num) {
-            return num < 10 ? '0' + num : num; // Si prefieres exactamente 3 dígitos como 072, usa padStart(2, '0') o similar
-        }
-
-        // Generamos la lista del 1 al 72
-        let fotosArray = [];
         for (let i = 1; i <= 72; i++) {
-            // Mapea a nombres como 01.jpeg, 02.jpeg ... 72.jpeg
-            // Si en GitHub tus archivos tienen ceros a la izquierda exactos (ej. 01.jpeg, 09.jpeg, 10.jpeg)
-            let nombreArchivo = i < 10 ? '0' + i + '.jpeg' : i + '.jpeg';
-            // Nota: Si GitHub muestra algunos como "01.jpeg" y otros como "10.jpeg", este formato cubre del 01 al 72.
-            fotosArray.push(`fotos/${nombreArchivo}`);
+            // Genera los nombres de archivo exactos (01.jpeg, 02.jpeg ... 72.jpeg)
+            let fileName = i < 10 ? '0' + i + '.jpeg' : i + '.jpeg';
+            
+            // loading="lazy" hace que las fotos se descarguen justo un instante antes de que aparezcan en pantalla al bajar
+            galleryHTML += `<img src="fotos/${fileName}" alt="PDLC-PET Producto ${i}" loading="lazy" onerror="this.style.display='none'">`;
         }
 
-        // Renderizamos el primer bloque de 72 fotos
-        fotosArray.forEach((ruta, index) => {
-            htmlContent += `<img src="${ruta}" alt="PDLC-PET Producto ${index + 1}" loading="lazy" onerror="this.style.display='none'">`;
-        });
-
-        // Duplicamos exactamente el mismo bloque una vez más para lograr el bucle infinito continuo y perfecto
-        fotosArray.forEach((ruta, index) => {
-            htmlContent += `<img src="${ruta}" alt="PDLC-PET Producto duplicado ${index + 1}" loading="lazy" onerror="this.style.display='none'">`;
-        });
-
-        track.innerHTML = htmlContent;
+        grid.innerHTML = galleryHTML;
     </script>
 
 </body>
