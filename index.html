@@ -133,6 +133,20 @@
             flex-shrink: 0;
         }
 
+        /* Enlace de ubicación interactivo */
+        .map-link {
+            color: var(--primary-dark);
+            text-decoration: none;
+            font-weight: 600;
+            border-bottom: 1px dashed var(--primary);
+            transition: color 0.2s, border-color 0.2s;
+        }
+
+        .map-link:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
         /* Insignias de pago */
         .badge-container {
             display: flex;
@@ -360,7 +374,7 @@
             <ul class="info-list">
                 <li>
                     <span class="icon">🏠</span>
-                    <div><strong>Taller:</strong> Calle Chachani 185, Maranga, San Miguel</div>
+                    <div><strong>Taller:</strong> <a href="https://maps.app.goo.gl/4j9zkG5rwXwkxeFo9" target="_blank" class="map-link">Calle Chachani 185, Maranga, San Miguel 🗺️</a></div>
                 </li>
                 <li>
                     <span class="icon">⏰</span>
@@ -438,16 +452,9 @@
         let currentIndex = 0;
         let photosList = [];
 
-        // Generar rutas exactas con el formato de tu carpeta: 
-        // 1 a 9 -> 01.jpeg, 02.jpeg... 
-        // 10 a 72 -> 010.jpeg, 011.jpeg... 072.jpeg
+        // Generar rutas exactas con el formato de tu carpeta: 01.jpeg hasta 072.jpeg
         for (let i = 1; i <= 72; i++) {
-            let fileName = '';
-            if (i < 10) {
-                fileName = '0' + i + '.jpeg';
-            } else {
-                fileName = '0' + i + '.jpeg'; // Ajustado exactamente para que desde el 10 use '010.jpeg' como indicaste
-            }
+            let fileName = i < 10 ? '0' + i + '.jpeg' : '0' + i + '.jpeg';
             photosList.push(`fotos/${fileName}`);
         }
 
