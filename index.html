@@ -16,12 +16,6 @@
             --text-light: #0f172a;
             --text-muted-light: #64748b;
             --border-light: #e2e8f0;
-
-            --bg-dark: #0f172a;
-            --card-dark: #1e293b;
-            --text-dark: #f8fafc;
-            --text-muted-dark: #94a3b8;
-            --border-dark: rgba(255, 255, 255, 0.08);
         }
 
         * {
@@ -39,14 +33,6 @@
             flex-direction: column;
             align-items: center;
             padding: 30px 20px;
-            transition: background 0.3s ease, color 0.3s ease;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            body {
-                background-color: var(--bg-dark);
-                color: var(--text-dark);
-            }
         }
 
         .container {
@@ -73,7 +59,7 @@
             align-items: center;
             justify-content: center;
             margin: 0 auto 15px;
-            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.2);
             animation: float 3s ease-in-out infinite;
         }
 
@@ -85,7 +71,7 @@
             font-size: 2.5rem;
             font-weight: 900;
             letter-spacing: -1px;
-            background: linear-gradient(90deg, #2563eb, #38bdf8);
+            background: linear-gradient(90deg, #2563eb, #1d4ed8);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 5px;
@@ -96,11 +82,7 @@
             color: var(--text-muted-light);
         }
 
-        @media (prefers-color-scheme: dark) {
-            .subtitle { color: var(--text-muted-dark); }
-        }
-
-        /* Tarjetas estilo fluido moderno */
+        /* Tarjetas */
         .card {
             background: var(--card-light);
             border: 1px solid var(--border-light);
@@ -115,20 +97,13 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
         }
 
-        @media (prefers-color-scheme: dark) {
-            .card {
-                background: var(--card-dark);
-                border-color: var(--border-dark);
-                box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-            }
-        }
-
         .card h2 {
             font-size: 1.3rem;
             margin-bottom: 15px;
             display: flex;
             align-items: center;
             gap: 10px;
+            color: var(--text-light);
         }
 
         .info-list {
@@ -144,6 +119,7 @@
             gap: 12px;
             font-size: 1.05rem;
             line-height: 1.5;
+            color: var(--text-light);
         }
 
         .info-list span.icon {
@@ -168,14 +144,7 @@
             font-size: 0.95rem;
         }
 
-        @media (prefers-color-scheme: dark) {
-            .badge {
-                background: rgba(56, 189, 248, 0.15);
-                color: #38bdf8;
-            }
-        }
-
-        /* Botón de WhatsApp flotante o principal */
+        /* Botón WhatsApp */
         .btn-whatsapp {
             display: flex;
             align-items: center;
@@ -188,17 +157,73 @@
             font-weight: bold;
             padding: 18px 30px;
             border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(37, 211, 102, 0.35);
+            box-shadow: 0 10px 25px rgba(37, 211, 102, 0.3);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             margin-top: 10px;
         }
 
         .btn-whatsapp:hover {
             transform: scale(1.02);
-            box-shadow: 0 14px 30px rgba(37, 211, 102, 0.45);
+            box-shadow: 0 14px 30px rgba(37, 211, 102, 0.4);
         }
 
-        /* Animaciones */
+        /* SECCIÓN DE DESPLAZAMIENTO VERTICAL INFINITO (GALERÍA FOTOS) */
+        .infinite-scroll-section {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .infinite-scroll-section h2 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--text-light);
+            text-align: left;
+        }
+
+        .scroll-container {
+            width: 100%;
+            height: 380px; /* Altura de la ventana visible */
+            overflow: hidden;
+            position: relative;
+            border-radius: 20px;
+            border: 1px solid var(--border-light);
+            background: var(--card-light);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+        }
+
+        .scroll-track {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            position: absolute;
+            width: 100%;
+            padding: 15px;
+            animation: infiniteVerticalScroll 25s linear infinite;
+        }
+
+        .scroll-track:hover {
+            animation-play-state: paused; /* Pausa al pasar el mouse por encima */
+        }
+
+        .scroll-track img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-light);
+        }
+
+        @keyframes infiniteVerticalScroll {
+            0% {
+                transform: translateY(0);
+            }
+            100% {
+                transform: translateY(-50%);
+            }
+        }
+
+        /* Animaciones generales */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -215,10 +240,6 @@
             margin-top: 30px;
             font-size: 0.9rem;
             color: var(--text-muted-light);
-        }
-
-        @media (prefers-color-scheme: dark) {
-            footer { color: var(--text-muted-dark); }
         }
     </style>
 </head>
@@ -283,6 +304,26 @@
         <a href="https://wa.me/51944496046?text=Hola,%20vengo%20por%20su%20página%20y%20estoy%20interesado%20en%20sus%20productos" target="_blank" class="btn-whatsapp">
             <span>💬 Escríbenos por WhatsApp</span>
         </a>
+
+        <!-- GALERÍA DE FOTOS CON DESPLAZAMIENTO VERTICAL INFINITO -->
+        <div class="infinite-scroll-section">
+            <h2>📸 Galería de Productos</h2>
+            <div class="scroll-container">
+                <div class="scroll-track">
+                    <!-- BLOQUE 1 DE FOTOS (Apunta a la carpeta /fotos/) -->
+                    <img src="fotos/foto1.jpg" alt="Accesorio de madera PDLC-PET 1" onerror="this.src='https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=600&q=80'">
+                    <img src="fotos/foto2.jpg" alt="Accesorio de madera PDLC-PET 2" onerror="this.src='https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=600&q=80'">
+                    <img src="fotos/foto3.jpg" alt="Accesorio de madera PDLC-PET 3" onerror="this.src='https://images.unsplash.com/photo-1535930891776-0c2dfb7fda1a?auto=format&fit=crop&w=600&q=80'">
+                    <img src="fotos/foto4.jpg" alt="Accesorio de madera PDLC-PET 4" onerror="this.src='https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=600&q=80'">
+
+                    <!-- BLOQUE DUPLICADO EXACTAMENTE IGUAL PARA LOGRAR EL BUCLE INFINITO FLUIDO -->
+                    <img src="fotos/foto1.jpg" alt="Accesorio de madera PDLC-PET 1" onerror="this.src='https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=600&q=80'">
+                    <img src="fotos/foto2.jpg" alt="Accesorio de madera PDLC-PET 2" onerror="this.src='https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=600&q=80'">
+                    <img src="fotos/foto3.jpg" alt="Accesorio de madera PDLC-PET 3" onerror="this.src='https://images.unsplash.com/photo-1535930891776-0c2dfb7fda1a?auto=format&fit=crop&w=600&q=80'">
+                    <img src="fotos/foto4.jpg" alt="Accesorio de madera PDLC-PET 4" onerror="this.src='https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=600&q=80'">
+                </div>
+            </div>
+        </div>
 
         <footer>
             <p>&copy; 2026 PDLC-PET. Todos los derechos reservados.</p>
