@@ -8,13 +8,15 @@
     
     <style>
         :root {
-            --primary: #2563eb;
+            --primary: #9687B0;
+            --primary-dark: #7a6c94;
+            --accent: #D19A36;
             --whatsapp: #25D366;
-            --bg-light: #f8fafc;
+            --bg-light: #fbf9fd;
             --card-light: #ffffff;
-            --text-light: #0f172a;
-            --text-muted-light: #64748b;
-            --border-light: #e2e8f0;
+            --text-light: #2b2633;
+            --text-muted-light: #6e657c;
+            --border-light: #e6e1ed;
         }
 
         * {
@@ -53,14 +55,14 @@
             width: 90px;
             height: 90px;
             background: #ffffff;
-            border: 2px solid var(--border-light);
+            border: 2px solid var(--accent);
             border-radius: 22px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 15px;
             overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 10px 25px rgba(150, 135, 176, 0.2);
             animation: float 3s ease-in-out infinite;
         }
 
@@ -74,7 +76,7 @@
             font-size: 2.5rem;
             font-weight: 900;
             letter-spacing: -1px;
-            background: linear-gradient(90deg, #2563eb, #1d4ed8);
+            background: linear-gradient(90deg, var(--primary), var(--accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 5px;
@@ -91,13 +93,13 @@
             border: 1px solid var(--border-light);
             border-radius: 20px;
             padding: 24px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            box-shadow: 0 4px 20px rgba(150, 135, 176, 0.08);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            box-shadow: 0 10px 30px rgba(150, 135, 176, 0.15);
         }
 
         .card h2 {
@@ -106,7 +108,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            color: var(--text-light);
+            color: var(--primary);
         }
 
         .info-list {
@@ -139,15 +141,16 @@
         }
 
         .badge {
-            background: rgba(37, 99, 235, 0.1);
+            background: rgba(150, 135, 176, 0.12);
             color: var(--primary);
             padding: 8px 16px;
             border-radius: 99px;
             font-weight: 600;
             font-size: 0.95rem;
+            border: 1px solid rgba(150, 135, 176, 0.2);
         }
 
-        /* Botón WhatsApp */
+        /* Botón WhatsApp General */
         .btn-whatsapp {
             display: flex;
             align-items: center;
@@ -178,45 +181,78 @@
         .gallery-section h2 {
             font-size: 1.3rem;
             margin-bottom: 15px;
-            color: var(--text-light);
+            color: var(--primary);
         }
 
         .gallery-grid {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 20px;
             width: 100%;
         }
 
-        .gallery-grid img {
+        .gallery-item {
+            background: var(--card-light);
+            border: 1px solid var(--border-light);
+            border-radius: 18px;
+            padding: 12px;
+            box-shadow: 0 4px 15px rgba(150, 135, 176, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .gallery-item img {
             width: 100%;
             height: 320px;
             object-fit: cover;
-            border-radius: 16px;
-            border: 1px solid var(--border-light);
-            background: #e2e8f0;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-radius: 12px;
+            background: #e6e1ed;
             cursor: pointer;
             transition: transform 0.2s ease;
         }
 
-        .gallery-grid img:hover {
+        .gallery-item img:hover {
             transform: scale(1.01);
         }
 
-        /* LIGHTBOX / VISOR EN PANTALLA COMPLETA (ESTILO TIKTOK / GALERÍA) */
+        /* Botón "Lo quiero" debajo de cada foto */
+        .btn-lo-quiero {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background-color: var(--whatsapp);
+            color: white;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.25);
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+
+        .btn-lo-quiero:hover {
+            transform: scale(1.01);
+            background-color: #22bf5b;
+        }
+
+        /* LIGHTBOX / VISOR EN PANTALLA COMPLETA */
         #lightbox {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(0, 0, 0, 0.95);
+            background: rgba(15, 13, 20, 0.96);
             display: none;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 9999;
             touch-action: none;
+            padding: 20px;
         }
 
         #lightbox.active {
@@ -225,7 +261,7 @@
 
         #lightbox img {
             max-width: 90%;
-            max-height: 85vh;
+            max-height: 72vh;
             object-fit: contain;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
@@ -233,12 +269,12 @@
 
         .lb-btn {
             position: absolute;
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.15);
             color: white;
             border: none;
-            font-size: 2rem;
-            width: 55px;
-            height: 55px;
+            font-size: 1.8rem;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             cursor: pointer;
             display: flex;
@@ -249,22 +285,41 @@
         }
 
         .lb-btn:hover {
-            background: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.3);
         }
 
-        #lb-prev { left: 20px; }
-        #lb-next { right: 20px; }
-        #lb-close { top: 20px; right: 20px; font-size: 1.8rem; }
+        /* Botón de cerrar perfectamente centrado */
+        #lb-close {
+            top: 20px;
+            right: 20px;
+            font-size: 2rem;
+            line-height: 1;
+            padding-bottom: 3px;
+            padding-left: 1px;
+        }
 
-        .lb-counter {
-            position: absolute;
-            bottom: 25px;
-            color: white;
-            font-size: 1rem;
-            background: rgba(0,0,0,0.6);
-            padding: 6px 16px;
+        .lb-footer {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 320px;
+        }
+
+        #lb-lo-quiero {
+            width: 100%;
+        }
+
+        #lb-counter {
+            color: #ffffff;
+            font-size: 0.95rem;
+            background: rgba(150, 135, 176, 0.4);
+            padding: 4px 14px;
             border-radius: 20px;
             letter-spacing: 1px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         @keyframes fadeIn {
@@ -352,7 +407,7 @@
         <div class="gallery-section">
             <h2>📸 Galería de Productos</h2>
             <div class="gallery-grid" id="galleryGrid">
-                <!-- Se inyectan dinámicamente las 72 fotos mediante JavaScript -->
+                <!-- Se inyectan dinámicamente las 72 fotos y sus botones mediante JavaScript -->
             </div>
         </div>
 
@@ -364,10 +419,11 @@
     <!-- VISOR EN PANTALLA COMPLETA (LIGHTBOX) -->
     <div id="lightbox">
         <button class="lb-btn" id="lb-close">&times;</button>
-        <button class="lb-btn" id="lb-prev">&#10094;</button>
         <img id="lb-img" src="" alt="Ampliada">
-        <button class="lb-btn" id="lb-next">&#10095;</button>
-        <div class="lb-counter" id="lb-counter">1 / 72</div>
+        <div class="lb-footer">
+            <a href="#" id="lb-lo-quiero" class="btn-lo-quiero" target="_blank">💚 Lo quiero</a>
+            <div class="lb-counter" id="lb-counter">1 / 72</div>
+        </div>
     </div>
 
     <script>
@@ -375,27 +431,38 @@
         const lightbox = document.getElementById('lightbox');
         const lbImg = document.getElementById('lb-img');
         const lbClose = document.getElementById('lb-close');
-        const lbPrev = document.getElementById('lb-prev');
-        const lbNext = document.getElementById('lb-next');
+        const lbLoQuiero = document.getElementById('lb-lo-quiero');
         const lbCounter = document.getElementById('lb-counter');
 
         let currentIndex = 0;
         let photosList = [];
 
-        // Generar las rutas correctas para las 72 fotos (maneja 01 a 09 con cero, y 10 a 72 normales)
+        // Generar las rutas correctas para las 72 fotos
         for (let i = 1; i <= 72; i++) {
             let fileName = i < 10 ? '0' + i + '.jpeg' : i + '.jpeg';
             photosList.push(`fotos/${fileName}`);
         }
 
-        // Inyectar las fotos en la cuadrícula HTML
+        // Obtener la URL base actual para que WhatsApp comparta el enlace exacto de la foto
+        const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+
+        // Inyectar las fotos con su tarjeta y botón individual en el HTML
         let galleryHTML = '';
         photosList.forEach((ruta, index) => {
-            galleryHTML += `<img src="${ruta}" alt="PDLC-PET Producto ${index + 1}" loading="lazy" data-index="${index}" onerror="this.style.display='none'">`;
+            let photoUrl = baseUrl + ruta;
+            let mensajeWhatsApp = encodeURIComponent(`Hola, vengo por su página y estoy interesado en sus productos. Me interesa este modelo: ${photoUrl}`);
+            let waLink = `https://wa.me/51944496046?text=${mensajeWhatsApp}`;
+
+            galleryHTML += `
+                <div class="gallery-item">
+                    <img src="${ruta}" alt="PDLC-PET Producto ${index + 1}" loading="lazy" data-index="${index}" onerror="this.parentElement.style.display='none'">
+                    <a href="${waLink}" target="_blank" class="btn-lo-quiero">💚 Lo quiero</a>
+                </div>
+            `;
         });
         grid.innerHTML = galleryHTML;
 
-        // Manejador de clics para abrir el visor en pantalla completa
+        // Manejador de clics en las imágenes para abrir el visor en pantalla completa
         grid.addEventListener('click', (e) => {
             if (e.target.tagName === 'IMG') {
                 currentIndex = parseInt(e.target.getAttribute('data-index'));
@@ -403,9 +470,18 @@
             }
         });
 
-        function openLightbox() {
-            lbImg.src = photosList[currentIndex];
+        function updateLightboxContent() {
+            let ruta = photosList[currentIndex];
+            let photoUrl = baseUrl + ruta;
+            let mensajeWhatsApp = encodeURIComponent(`Hola, vengo por su página y estoy interesado en sus productos. Me interesa este modelo: ${photoUrl}`);
+            
+            lbImg.src = ruta;
+            lbLoQuiero.href = `https://wa.me/51944496046?text=${mensajeWhatsApp}`;
             lbCounter.textContent = `${currentIndex + 1} / ${photosList.length}`;
+        }
+
+        function openLightbox() {
+            updateLightboxContent();
             lightbox.classList.add('active');
         }
 
@@ -413,56 +489,52 @@
             lightbox.classList.remove('active');
         }
 
-        function showPrev() {
-            currentIndex = (currentIndex - 1 + photosList.length) % photosList.length;
-            lbImg.src = photosList[currentIndex];
-            lbCounter.textContent = `${currentIndex + 1} / ${photosList.length}`;
-        }
-
         function showNext() {
             currentIndex = (currentIndex + 1) % photosList.length;
-            lbImg.src = photosList[currentIndex];
-            lbCounter.textContent = `${currentIndex + 1} / ${photosList.length}`;
+            updateLightboxContent();
         }
 
-        // Botones de control del visor
-        lbClose.addEventListener('click', closeLightbox);
-        lbPrev.addEventListener('click', showPrev);
-        lbNext.addEventListener('click', showNext);
+        function showPrev() {
+            currentIndex = (currentIndex - 1 + photosList.length) % photosList.length;
+            updateLightboxContent();
+        }
 
-        // Cerrar al hacer clic fuera de la foto en el fondo negro
+        lbClose.addEventListener('click', closeLightbox);
+
+        // Cerrar al hacer clic en el fondo oscuro
         lightbox.addEventListener('click', (e) => {
             if (e.target === lightbox) {
                 closeLightbox();
             }
         });
 
-        // Soporte para gestos táctiles (deslizar a los lados tipo TikTok / galería móvil)
-        let touchStartX = 0;
-        let touchEndX = 0;
+        // Gestos táctiles en pantalla completa: Deslizar hacia ABAJO = Siguiente | Deslizar hacia ARRIBA = Anterior
+        let touchStartY = 0;
+        let touchEndY = 0;
 
         lightbox.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
         }, {passive: true});
 
         lightbox.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            let diff = touchStartX - touchEndX;
-            if (Math.abs(diff) > 50) { // Umbral de deslizamiento
+            touchEndY = e.changedTouches[0].screenY;
+            let diff = touchStartY - touchEndY;
+            
+            if (Math.abs(diff) > 40) { // Sensibilidad del gesto
                 if (diff > 0) {
-                    showNext(); // Deslizó a la izquierda -> Siguiente
+                    showNext(); // Deslizar hacia abajo -> Siguiente foto
                 } else {
-                    showPrev(); // Deslizó a la derecha -> Anterior
+                    showPrev(); // Deslizar hacia arriba -> Anterior foto
                 }
             }
         }, {passive: true});
 
-        // Soporte para flechas del teclado en PC
+        // Soporte de flechas en el teclado (Abajo = Siguiente, Arriba = Anterior)
         document.addEventListener('keydown', (e) => {
             if (!lightbox.classList.contains('active')) return;
             if (e.key === 'Escape') closeLightbox();
-            if (e.key === 'ArrowLeft') showPrev();
-            if (e.key === 'ArrowRight') showNext();
+            if (e.key === 'ArrowUp') showPrev();
+            if (e.key === 'ArrowDown') showNext();
         });
     </script>
 
