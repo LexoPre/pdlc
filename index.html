@@ -260,7 +260,6 @@
             display: flex;
         }
 
-        /* Imagen ampliada limpia y sin restricciones extra */
         #lightbox img {
             max-width: 90vw;
             max-height: 75vh;
@@ -290,7 +289,6 @@
             background: rgba(255, 255, 255, 0.3);
         }
 
-        /* Botón de cerrar perfectamente centrado */
         #lb-close {
             top: 20px;
             right: 20px;
@@ -349,7 +347,7 @@
         <!-- Encabezado con Logo -->
         <header>
             <div class="logo-box">
-                <img src="fotos/Logo.jpeg" alt="PDLC-PET Logo" onerror="this.parentElement.innerHTML='<span>🪵</span>'">
+                <img src="fotos/Logo.jpeg" alt="PDLC-PET Logo" onerror="this.src='fotos/logo.jpeg'; this.onerror=function(){this.parentElement.innerHTML='<span>🪵</span>'}">
             </div>
             <h1>PDLC-PET</h1>
             <p class="subtitle">Accesorios de Madera Personalizados para Mascotas</p>
@@ -418,7 +416,7 @@
         </footer>
     </div>
 
-    <!-- VISOR EN PANTALLA COMPLETA (LIGHTBOX LIMPIO) -->
+    <!-- VISOR EN PANTALLA COMPLETA (LIGHTBOX) -->
     <div id="lightbox">
         <button class="lb-btn" id="lb-close">&times;</button>
         <img id="lb-img" src="" alt="Foto Ampliada">
@@ -439,7 +437,7 @@
         let currentIndex = 0;
         let photosList = [];
 
-        // Generar rutas exactas: 01 a 09 con cero al inicio, 10 a 72 normales
+        // Generar rutas exactas para las 72 fotos (01 a 09 con cero, 10 a 72 normales)
         for (let i = 1; i <= 72; i++) {
             let fileName = i < 10 ? '0' + i + '.jpeg' : i + '.jpeg';
             photosList.push(`fotos/${fileName}`);
@@ -456,7 +454,7 @@
 
             galleryHTML += `
                 <div class="gallery-item">
-                    <img src="${ruta}" alt="PDLC-PET Producto ${index + 1}" loading="lazy" data-index="${index}" onerror="this.parentElement.style.display='none'">
+                    <img src="${ruta}" alt="PDLC-PET Producto ${index + 1}" loading="lazy" data-index="${index}" onerror="if(this.src.endsWith('.jpeg')) { this.src = this.src.replace('.jpeg', '.jpg'); } else { this.parentElement.style.display='none'; }">
                     <a href="${waLink}" target="_blank" class="btn-lo-quiero">Lo quiero</a>
                 </div>
             `;
@@ -477,6 +475,12 @@
             let mensajeWhatsApp = encodeURIComponent(`Hola, vengo por su página y estoy interesado en sus productos. Me interesa este modelo: ${photoUrl}`);
             
             lbImg.src = ruta;
+            lbImg.onerror = function() {
+                if(this.src.endsWith('.jpeg')) {
+                    this.src = this.src.replace('.jpeg', '.jpg');
+                }
+            };
+
             lbLoQuiero.href = `https://wa.me/51944496046?text=${mensajeWhatsApp}`;
             lbCounter.textContent = `${currentIndex + 1} / ${photosList.length}`;
         }
