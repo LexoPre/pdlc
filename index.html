@@ -182,7 +182,7 @@
 
         .scroll-container {
             width: 100%;
-            height: 380px; /* Altura de la ventana visible */
+            height: 420px;
             overflow: hidden;
             position: relative;
             border-radius: 20px;
@@ -198,20 +198,21 @@
             position: absolute;
             width: 100%;
             padding: 15px;
-            animation: infiniteVerticalScroll 25s linear infinite;
+            animation: infiniteVerticalScroll 120s linear infinite;
         }
 
         .scroll-track:hover {
-            animation-play-state: paused; /* Pausa al pasar el mouse por encima */
+            animation-play-state: paused;
         }
 
         .scroll-track img {
             width: 100%;
-            height: 220px;
+            height: 240px;
             object-fit: cover;
             border-radius: 14px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             border: 1px solid var(--border-light);
+            background: #e2e8f0;
         }
 
         @keyframes infiniteVerticalScroll {
@@ -223,7 +224,6 @@
             }
         }
 
-        /* Animaciones generales */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -305,22 +305,12 @@
             <span>💬 Escríbenos por WhatsApp</span>
         </a>
 
-        <!-- GALERÍA DE FOTOS CON DESPLAZAMIENTO VERTICAL INFINITO -->
+        <!-- GALERÍA DE FOTOS CON DESPLAZAMIENTO VERTICAL INFINITO AUTOMÁTICO -->
         <div class="infinite-scroll-section">
             <h2>📸 Galería de Productos</h2>
             <div class="scroll-container">
-                <div class="scroll-track">
-                    <!-- BLOQUE 1 DE FOTOS (Apunta a la carpeta /fotos/) -->
-                    <img src="fotos/foto1.jpg" alt="Accesorio de madera PDLC-PET 1" onerror="this.src='https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=600&q=80'">
-                    <img src="fotos/foto2.jpg" alt="Accesorio de madera PDLC-PET 2" onerror="this.src='https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=600&q=80'">
-                    <img src="fotos/foto3.jpg" alt="Accesorio de madera PDLC-PET 3" onerror="this.src='https://images.unsplash.com/photo-1535930891776-0c2dfb7fda1a?auto=format&fit=crop&w=600&q=80'">
-                    <img src="fotos/foto4.jpg" alt="Accesorio de madera PDLC-PET 4" onerror="this.src='https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=600&q=80'">
-
-                    <!-- BLOQUE DUPLICADO EXACTAMENTE IGUAL PARA LOGRAR EL BUCLE INFINITO FLUIDO -->
-                    <img src="fotos/foto1.jpg" alt="Accesorio de madera PDLC-PET 1" onerror="this.src='https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=600&q=80'">
-                    <img src="fotos/foto2.jpg" alt="Accesorio de madera PDLC-PET 2" onerror="this.src='https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=600&q=80'">
-                    <img src="fotos/foto3.jpg" alt="Accesorio de madera PDLC-PET 3" onerror="this.src='https://images.unsplash.com/photo-1535930891776-0c2dfb7fda1a?auto=format&fit=crop&w=600&q=80'">
-                    <img src="fotos/foto4.jpg" alt="Accesorio de madera PDLC-PET 4" onerror="this.src='https://images.unsplash.com/photo-1548767797-d8c844163c4c?auto=format&fit=crop&w=600&q=80'">
+                <div class="scroll-track" id="galeriaTrack">
+                    <!-- Las 72 fotos se cargan automáticamente aquí mediante el script de abajo -->
                 </div>
             </div>
         </div>
@@ -329,6 +319,39 @@
             <p>&copy; 2026 PDLC-PET. Todos los derechos reservados.</p>
         </footer>
     </div>
+
+    <script>
+        // Carga automática de las 72 fotos desde la carpeta "fotos"
+        const track = document.getElementById('galeriaTrack');
+        let htmlContent = '';
+
+        // Función auxiliar para formatear los números (01, 02... hasta 072)
+        function pad(num) {
+            return num < 10 ? '0' + num : num; // Si prefieres exactamente 3 dígitos como 072, usa padStart(2, '0') o similar
+        }
+
+        // Generamos la lista del 1 al 72
+        let fotosArray = [];
+        for (let i = 1; i <= 72; i++) {
+            // Mapea a nombres como 01.jpeg, 02.jpeg ... 72.jpeg
+            // Si en GitHub tus archivos tienen ceros a la izquierda exactos (ej. 01.jpeg, 09.jpeg, 10.jpeg)
+            let nombreArchivo = i < 10 ? '0' + i + '.jpeg' : i + '.jpeg';
+            // Nota: Si GitHub muestra algunos como "01.jpeg" y otros como "10.jpeg", este formato cubre del 01 al 72.
+            fotosArray.push(`fotos/${nombreArchivo}`);
+        }
+
+        // Renderizamos el primer bloque de 72 fotos
+        fotosArray.forEach((ruta, index) => {
+            htmlContent += `<img src="${ruta}" alt="PDLC-PET Producto ${index + 1}" loading="lazy" onerror="this.style.display='none'">`;
+        });
+
+        // Duplicamos exactamente el mismo bloque una vez más para lograr el bucle infinito continuo y perfecto
+        fotosArray.forEach((ruta, index) => {
+            htmlContent += `<img src="${ruta}" alt="PDLC-PET Producto duplicado ${index + 1}" loading="lazy" onerror="this.style.display='none'">`;
+        });
+
+        track.innerHTML = htmlContent;
+    </script>
 
 </body>
 </html>
