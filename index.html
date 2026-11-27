@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🐾 PDLC-PET | Muebles de Madera para Mascotas</title>
+    <meta name="color-scheme" content="light dark">
+    <title>🐾 PDLC-PET | Accesorios de Madera para Mascotas</title>
     <meta name="description" content="Accesorios de madera personalizados y de alta calidad para mascotas en San Miguel, Lima.">
     
     <!-- Minilogo / Favicon en la carpeta fotos -->
@@ -17,11 +18,51 @@
             --accent: #D19A36;
             --accent-hover: #b8852c;
             --whatsapp: #25D366;
-            --bg-light: #fbf9fd;
-            --card-light: #ffffff;
-            --text-light: #2b2633;
-            --text-muted-light: #6e657c;
-            --border-light: #e6e1ed;
+            --bg-page: #fbf9fd;
+            --card-bg: rgba(255, 255, 255, 0.92);
+            --card-solid: #ffffff;
+            --text-main: #2b2633;
+            --text-muted: #6e657c;
+            --border-color: #e6e1ed;
+            --shadow-card: 0 4px 20px rgba(150, 135, 176, 0.08);
+            --shadow-card-hover: 0 10px 30px rgba(150, 135, 176, 0.15);
+            --badge-bg: rgba(150, 135, 176, 0.12);
+            --badge-border: rgba(150, 135, 176, 0.2);
+            --social-bg: rgba(209, 154, 54, 0.1);
+            --social-hover: rgba(209, 154, 54, 0.2);
+            --social-border: rgba(209, 154, 54, 0.25);
+            --img-placeholder: #e6e1ed;
+            --scroll-btn-bg: rgba(255, 255, 255, 0.86);
+            --scroll-btn-border: rgba(150, 135, 176, 0.35);
+            --blob-lila: rgba(150, 135, 176, 0.24);
+            --blob-oro: rgba(209, 154, 54, 0.20);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary: #b1a2cc;
+                --primary-dark: #c7b9e0;
+                --accent: #e0aa46;
+                --accent-hover: #eab95c;
+                --bg-page: #141219;
+                --card-bg: rgba(31, 27, 39, 0.90);
+                --card-solid: #1f1b27;
+                --text-main: #f3eff8;
+                --text-muted: #b3abc2;
+                --border-color: #322c3f;
+                --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.28);
+                --shadow-card-hover: 0 10px 30px rgba(0, 0, 0, 0.42);
+                --badge-bg: rgba(177, 162, 204, 0.16);
+                --badge-border: rgba(177, 162, 204, 0.28);
+                --social-bg: rgba(224, 170, 70, 0.14);
+                --social-hover: rgba(224, 170, 70, 0.24);
+                --social-border: rgba(224, 170, 70, 0.32);
+                --img-placeholder: #282333;
+                --scroll-btn-bg: rgba(31, 27, 39, 0.88);
+                --scroll-btn-border: rgba(177, 162, 204, 0.32);
+                --blob-lila: rgba(150, 135, 176, 0.18);
+                --blob-oro: rgba(209, 154, 54, 0.15);
+            }
         }
 
         * {
@@ -32,8 +73,8 @@
         }
 
         body {
-            background-color: var(--bg-light);
-            color: var(--text-light);
+            background-color: var(--bg-page);
+            color: var(--text-main);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -41,6 +82,7 @@
             padding: 14px 4px 20px;
             overflow-x: hidden;
             position: relative;
+            transition: background-color 0.25s ease, color 0.25s ease;
         }
 
         /* Fondo ligero con rebote y fusión suave de #9687B0 y #D19A36 */
@@ -50,7 +92,7 @@
             z-index: 0;
             pointer-events: none;
             overflow: hidden;
-            background: var(--bg-light);
+            background: var(--bg-page);
         }
 
         .bounce-blob {
@@ -64,11 +106,11 @@
         }
 
         .bounce-blob.lila {
-            background: rgba(150, 135, 176, 0.24);
+            background: var(--blob-lila);
         }
 
         .bounce-blob.oro {
-            background: rgba(209, 154, 54, 0.20);
+            background: var(--blob-oro);
         }
 
         .container {
@@ -96,7 +138,7 @@
             width: 78px;
             height: 78px;
             flex-shrink: 0;
-            background: #ffffff;
+            background: var(--card-solid);
             border: 2px solid var(--accent);
             border-radius: 20px;
             display: flex;
@@ -131,7 +173,7 @@
 
         .subtitle {
             font-size: 1.1rem;
-            color: var(--text-muted-light);
+            color: var(--text-muted);
             line-height: 1.35;
         }
 
@@ -144,13 +186,13 @@
         }
 
         .card {
-            background: rgba(255, 255, 255, 0.92);
+            background: var(--card-bg);
             backdrop-filter: blur(6px);
-            border: 1px solid var(--border-light);
+            border: 1px solid var(--border-color);
             border-radius: 20px;
             padding: 24px;
-            box-shadow: 0 4px 20px rgba(150, 135, 176, 0.08);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: var(--shadow-card);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.25s ease, border-color 0.25s ease;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
@@ -159,7 +201,7 @@
 
         .card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(150, 135, 176, 0.15);
+            box-shadow: var(--shadow-card-hover);
         }
 
         .card h2 {
@@ -185,7 +227,7 @@
             font-size: 1.05rem;
             line-height: 1.72;
             letter-spacing: 0.01em;
-            color: var(--text-light);
+            color: var(--text-main);
         }
 
         .info-list span.icon {
@@ -217,13 +259,13 @@
         }
 
         .badge {
-            background: rgba(150, 135, 176, 0.12);
+            background: var(--badge-bg);
             color: var(--primary);
             padding: 8px 16px;
             border-radius: 99px;
             font-weight: 600;
             font-size: 0.95rem;
-            border: 1px solid rgba(150, 135, 176, 0.2);
+            border: 1px solid var(--badge-border);
         }
 
         /* Redes sociales */
@@ -238,18 +280,18 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(209, 154, 54, 0.1);
+            background: var(--social-bg);
             color: var(--accent-hover);
             text-decoration: none;
             font-weight: 600;
             padding: 10px 18px;
             border-radius: 12px;
-            border: 1px solid rgba(209, 154, 54, 0.25);
+            border: 1px solid var(--social-border);
             transition: background 0.2s, transform 0.2s;
         }
 
         .social-btn:hover {
-            background: rgba(209, 154, 54, 0.2);
+            background: var(--social-hover);
             transform: translateY(-2px);
         }
 
@@ -302,16 +344,16 @@
         }
 
         .cat-btn {
-            background: var(--card-light);
-            color: var(--text-light);
-            border: 1px solid var(--border-light);
+            background: var(--card-solid);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
             padding: 10px 18px;
             border-radius: 99px;
             font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
-            box-shadow: 0 2px 8px rgba(150, 135, 176, 0.06);
+            box-shadow: var(--shadow-card);
             white-space: nowrap;
         }
 
@@ -323,7 +365,7 @@
 
         .cat-btn.active {
             background: var(--primary);
-            color: white;
+            color: var(--bg-page);
             border-color: var(--primary);
             box-shadow: 0 4px 12px rgba(150, 135, 176, 0.3);
         }
@@ -336,11 +378,11 @@
         }
 
         .gallery-item {
-            background: var(--card-light);
-            border: 1px solid var(--border-light);
+            background: var(--card-solid);
+            border: 1px solid var(--border-color);
             border-radius: 16px;
             padding: 8px;
-            box-shadow: 0 4px 15px rgba(150, 135, 176, 0.08);
+            box-shadow: var(--shadow-card);
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -351,7 +393,7 @@
             height: 300px;
             object-fit: cover;
             border-radius: 12px;
-            background: #e6e1ed;
+            background: var(--img-placeholder);
             cursor: pointer;
             transition: transform 0.2s ease;
         }
@@ -453,10 +495,10 @@
             position: fixed;
             bottom: 22px;
             right: 18px;
-            background-color: rgba(255, 255, 255, 0.86);
+            background-color: var(--scroll-btn-bg);
             backdrop-filter: blur(8px);
             color: var(--primary-dark);
-            border: 1px solid rgba(150, 135, 176, 0.35);
+            border: 1px solid var(--scroll-btn-border);
             width: 40px;
             height: 40px;
             border-radius: 50%;
@@ -595,7 +637,7 @@
             </div>
             <div class="brand-text">
                 <h1>PDLC-PET</h1>
-                <p class="subtitle">Muebles de madera personalizados para mascotas.</p>
+                <p class="subtitle">Accesorios de madera personalizados para mascotas</p>
             </div>
         </header>
 
@@ -638,7 +680,7 @@
             <!-- Redes sociales -->
             <div class="card">
                 <h2>📱 Redes sociales</h2>
-                <p style="margin-bottom: 14px; line-height: 1.65; color: var(--text-muted-light);">Síguenos y conoce más de nuestro trabajo:</p>
+                <p style="margin-bottom: 14px; line-height: 1.65; color: var(--text-muted);">Síguenos y conoce más de nuestro trabajo:</p>
                 <div class="social-links">
                     <a href="https://www.tiktok.com/@nombre" target="_blank" class="social-btn">TikTok</a>
                     <a href="https://www.instagram.com/@ombre" target="_blank" class="social-btn">Instagram</a>
@@ -648,7 +690,7 @@
             <!-- Medios de pago -->
             <div class="card">
                 <h2>💳 Medios de pago</h2>
-                <p style="margin-bottom: 14px; line-height: 1.65; color: var(--text-muted-light);">Aceptamos los siguientes métodos de forma segura:</p>
+                <p style="margin-bottom: 14px; line-height: 1.65; color: var(--text-muted);">Aceptamos los siguientes métodos de forma segura:</p>
                 <div class="badge-container">
                     <div class="badge">Yape</div>
                     <div class="badge">Efectivo</div>
