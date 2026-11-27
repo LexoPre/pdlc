@@ -110,7 +110,7 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: flex-start;
             gap: 8px;
         }
 
@@ -121,7 +121,7 @@
 
         .card h2 {
             font-size: 1.3rem;
-            margin-bottom: 16px;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -791,13 +791,11 @@
             }
         });
 
-        // Tocar la foto pasa a la siguiente
         lbImg.addEventListener('click', (e) => {
             e.stopPropagation();
             showNext();
         });
 
-        // Tocar fuera de la foto (fondo, contenedor o zona del pie) cierra el visor
         imgContainer.addEventListener('click', (e) => {
             if (e.target === imgContainer) {
                 closeLightbox();
