@@ -8,7 +8,7 @@
     
     <!-- Minilogo / Favicon en la carpeta fotos -->
     <link rel="icon" href="fotos/favicon.ico" type="image/x-icon">
-    <link rel="shortcut" href="fotos/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="fotos/favicon.ico" type="image/x-icon">
 
     <style>
         :root {
@@ -105,12 +105,13 @@
             background: var(--card-light);
             border: 1px solid var(--border-light);
             border-radius: 20px;
-            padding: 22px;
+            padding: 24px;
             box-shadow: 0 4px 20px rgba(150, 135, 176, 0.08);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            gap: 8px;
         }
 
         .card:hover {
@@ -120,7 +121,7 @@
 
         .card h2 {
             font-size: 1.3rem;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -131,21 +132,23 @@
             list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 16px;
         }
 
         .info-list li {
             display: flex;
             align-items: flex-start;
-            gap: 12px;
+            gap: 13px;
             font-size: 1.05rem;
-            line-height: 1.5;
+            line-height: 1.72;
+            letter-spacing: 0.01em;
             color: var(--text-light);
         }
 
         .info-list span.icon {
             font-size: 1.2rem;
             flex-shrink: 0;
+            line-height: 1.65;
         }
 
         /* Enlace de ubicación interactivo */
@@ -167,7 +170,7 @@
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
-            margin-top: 5px;
+            margin-top: 8px;
         }
 
         .badge {
@@ -185,7 +188,7 @@
             display: flex;
             gap: 12px;
             flex-wrap: wrap;
-            margin-top: 5px;
+            margin-top: 8px;
         }
 
         .social-btn {
@@ -345,6 +348,15 @@
             .info-grid {
                 grid-template-columns: 1fr;
                 gap: 10px;
+            }
+            .card {
+                padding: 20px;
+            }
+            .info-list {
+                gap: 14px;
+            }
+            .info-list li {
+                line-height: 1.68;
             }
             .category-filters {
                 flex-wrap: nowrap;
@@ -558,7 +570,7 @@
             <!-- Redes sociales -->
             <div class="card">
                 <h2>📱 Redes sociales</h2>
-                <p style="margin-bottom: 12px; color: var(--text-muted-light);">Síguenos y conoce más de nuestro trabajo:</p>
+                <p style="margin-bottom: 14px; line-height: 1.65; color: var(--text-muted-light);">Síguenos y conoce más de nuestro trabajo:</p>
                 <div class="social-links">
                     <a href="https://www.tiktok.com/@nombre" target="_blank" class="social-btn">TikTok</a>
                     <a href="https://www.instagram.com/@ombre" target="_blank" class="social-btn">Instagram</a>
@@ -568,7 +580,7 @@
             <!-- Medios de pago -->
             <div class="card">
                 <h2>💳 Medios de pago</h2>
-                <p style="margin-bottom: 12px; color: var(--text-muted-light);">Aceptamos los siguientes métodos de forma segura:</p>
+                <p style="margin-bottom: 14px; line-height: 1.65; color: var(--text-muted-light);">Aceptamos los siguientes métodos de forma segura:</p>
                 <div class="badge-container">
                     <div class="badge">Yape</div>
                     <div class="badge">Efectivo</div>
@@ -622,6 +634,8 @@
         const grid = document.getElementById('galleryGrid');
         const categoryFilters = document.getElementById('categoryFilters');
         const lightbox = document.getElementById('lightbox');
+        const imgContainer = document.getElementById('imgContainer');
+        const lbFooter = document.querySelector('.lb-footer');
         const lbImg = document.getElementById('lb-img');
         const lbClose = document.getElementById('lb-close');
         const lbLoQuiero = document.getElementById('lb-lo-quiero');
@@ -630,7 +644,7 @@
         let currentIndex = 0;
         let allPhotos = [];
         let visiblePhotos = [];
-        let stepDirection = 1; // 1 = adelante, -1 = atrás
+        let stepDirection = 1;
 
         const categoriasConfig = [
             { nombre: 'Camas', carpeta: 'Camas', prefijo: 'Camas', respaldoCantidad: 20 },
@@ -732,7 +746,6 @@
             });
             grid.innerHTML = galleryHTML;
 
-            // Marca como inválidas solo las fotos que realmente fallen al cargar y oculta su tarjeta
             grid.querySelectorAll('.gallery-item img').forEach((imgEl) => {
                 imgEl.addEventListener('error', () => {
                     const idx = parseInt(imgEl.getAttribute('data-index'));
@@ -778,12 +791,29 @@
             }
         });
 
+        // Tocar la foto pasa a la siguiente
         lbImg.addEventListener('click', (e) => {
             e.stopPropagation();
             showNext();
         });
 
-        // Si al pasar de foto una imagen falla, salta automáticamente a la siguiente válida
+        // Tocar fuera de la foto (fondo, contenedor o zona del pie) cierra el visor
+        imgContainer.addEventListener('click', (e) => {
+            if (e.target === imgContainer) {
+                closeLightbox();
+            }
+        });
+
+        lbFooter.addEventListener('click', (e) => {
+            if (e.target === lbFooter) {
+                closeLightbox();
+            }
+        });
+
+        lbLoQuiero.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
         lbImg.addEventListener('error', () => {
             if (visiblePhotos.length === 0) return;
             if (visiblePhotos[currentIndex]) {
@@ -820,7 +850,6 @@
             const photoUrl = baseUrl + item.ruta;
             const mensajeWhatsApp = encodeURIComponent(`Hola, vengo por su página y estoy interesado en sus productos (${item.categoria}). Me interesa este modelo: ${photoUrl}`);
 
-            // Reinicia el src antes de asignar la nueva ruta para forzar carga limpia
             lbImg.removeAttribute('src');
             lbImg.src = item.ruta;
             lbLoQuiero.href = `https://wa.me/51944496046?text=${mensajeWhatsApp}`;
@@ -849,7 +878,10 @@
             updateLightboxContent();
         }
 
-        lbClose.addEventListener('click', closeLightbox);
+        lbClose.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeLightbox();
+        });
 
         lightbox.addEventListener('click', (e) => {
             if (e.target === lightbox) {
