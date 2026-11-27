@@ -43,61 +43,32 @@
             position: relative;
         }
 
-        /* Fondo suave animado integrado al blanco */
+        /* Fondo ligero con rebote y fusión suave de #9687B0 y #D19A36 */
         .ambient-bg {
             position: fixed;
             inset: 0;
             z-index: 0;
             pointer-events: none;
             overflow: hidden;
-            background: radial-gradient(circle at 50% 20%, rgba(251, 249, 253, 0.92), rgba(251, 249, 253, 0.98));
+            background: var(--bg-light);
         }
 
-        .ambient-blob {
+        .bounce-blob {
             position: absolute;
+            top: 0;
+            left: 0;
             border-radius: 50%;
-            filter: blur(110px);
-            opacity: 0.14;
+            filter: blur(95px);
             will-change: transform;
+            transform: translate3d(0, 0, 0);
         }
 
-        .blob-lila-1 {
-            width: 460px;
-            height: 460px;
-            background: #9687B0;
-            top: -110px;
-            left: -90px;
-            animation: driftSlowA 26s ease-in-out infinite alternate;
+        .bounce-blob.lila {
+            background: rgba(150, 135, 176, 0.24);
         }
 
-        .blob-oro-1 {
-            width: 420px;
-            height: 420px;
-            background: #D19A36;
-            top: 18%;
-            right: -110px;
-            opacity: 0.11;
-            animation: driftSlowB 30s ease-in-out infinite alternate;
-        }
-
-        .blob-lila-2 {
-            width: 500px;
-            height: 500px;
-            background: #9687B0;
-            bottom: -140px;
-            left: 12%;
-            opacity: 0.10;
-            animation: driftSlowC 34s ease-in-out infinite alternate;
-        }
-
-        .blob-oro-2 {
-            width: 360px;
-            height: 360px;
-            background: #D19A36;
-            bottom: 12%;
-            right: 8%;
-            opacity: 0.09;
-            animation: driftSlowA 28s ease-in-out infinite alternate-reverse;
+        .bounce-blob.oro {
+            background: rgba(209, 154, 54, 0.20);
         }
 
         .container {
@@ -406,16 +377,8 @@
             body {
                 padding: 10px 2px;
             }
-            .ambient-blob {
-                filter: blur(90px);
-            }
-            .blob-lila-1, .blob-lila-2 {
-                width: 310px;
-                height: 310px;
-            }
-            .blob-oro-1, .blob-oro-2 {
-                width: 280px;
-                height: 280px;
+            .bounce-blob {
+                filter: blur(75px);
             }
             .info-grid {
                 grid-template-columns: 1fr;
@@ -579,24 +542,6 @@
             width: 100%;
         }
 
-        @keyframes driftSlowA {
-            0% { transform: translate(0px, 0px) scale(1); }
-            50% { transform: translate(45px, 30px) scale(1.06); }
-            100% { transform: translate(-20px, 55px) scale(0.98); }
-        }
-
-        @keyframes driftSlowB {
-            0% { transform: translate(0px, 0px) scale(1); }
-            50% { transform: translate(-50px, 25px) scale(1.05); }
-            100% { transform: translate(-25px, -35px) scale(0.97); }
-        }
-
-        @keyframes driftSlowC {
-            0% { transform: translate(0px, 0px) scale(1); }
-            50% { transform: translate(35px, -30px) scale(1.07); }
-            100% { transform: translate(-35px, -15px) scale(0.99); }
-        }
-
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -611,12 +556,7 @@
 </head>
 <body>
 
-    <div class="ambient-bg" aria-hidden="true">
-        <div class="ambient-blob blob-lila-1"></div>
-        <div class="ambient-blob blob-oro-1"></div>
-        <div class="ambient-blob blob-lila-2"></div>
-        <div class="ambient-blob blob-oro-2"></div>
-    </div>
+    <div class="ambient-bg" id="ambientBg" aria-hidden="true"></div>
 
     <div class="container">
         <!-- Encabezado con Logo -->
@@ -728,6 +668,104 @@
     </div>
 
     <script>
+        // Fondo animado ligero con rebote y fusión de #9687B0 y #D19A36
+        (function initAmbientBounce() {
+            const ambientBg = document.getElementById('ambientBg');
+            if (!ambientBg || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+            const isMobile = window.innerWidth <= 768;
+            const configs = [
+                { tipo: 'lila', size: isMobile ? 250 : 390 },
+                { tipo: 'oro',  size: isMobile ? 240 : 370 },
+                { tipo: 'lila', size: isMobile ? 220 : 340 },
+                { tipo: 'oro',  size: isMobile ? 230 : 350 }
+            ];
+
+            let vw = window.innerWidth;
+            let vh = window.innerHeight;
+
+            const blobs = configs.map((cfg) => {
+                const el = document.createElement('div');
+                el.className = `bounce-blob ${cfg.tipo}`;
+                el.style.width = `${cfg.size}px`;
+                el.style.height = `${cfg.size}px`;
+                ambientBg.appendChild(el);
+
+                const angle = Math.random() * Math.PI * 2;
+                const speed = (isMobile ? 26 : 38) + Math.random() * 18; // px por segundo, suave
+
+                return {
+                    el,
+                    size: cfg.size,
+                    x: Math.random() * Math.max(40, vw - cfg.size),
+                    y: Math.random() * Math.max(40, vh - cfg.size),
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed
+                };
+            });
+
+            window.addEventListener('resize', () => {
+                vw = window.innerWidth;
+                vh = window.innerHeight;
+            }, { passive: true });
+
+            let lastTime = performance.now();
+            let paused = false;
+
+            document.addEventListener('visibilitychange', () => {
+                paused = document.hidden;
+                if (!paused) lastTime = performance.now();
+            });
+
+            function step(now) {
+                if (!paused) {
+                    const dt = Math.min((now - lastTime) / 1000, 0.05);
+                    lastTime = now;
+
+                    for (let i = 0; i < blobs.length; i++) {
+                        const b = blobs[i];
+                        b.x += b.vx * dt;
+                        b.y += b.vy * dt;
+
+                        // Pequeña variación aleatoria de rumbo para movimiento orgánico
+                        if (Math.random() < 0.008) {
+                            const jitter = (Math.random() - 0.5) * 0.35;
+                            const cos = Math.cos(jitter);
+                            const sin = Math.sin(jitter);
+                            const nvx = b.vx * cos - b.vy * sin;
+                            const nvy = b.vx * sin + b.vy * cos;
+                            b.vx = nvx;
+                            b.vy = nvy;
+                        }
+
+                        const maxX = Math.max(0, vw - b.size);
+                        const maxY = Math.max(0, vh - b.size);
+
+                        if (b.x <= 0) {
+                            b.x = 0;
+                            b.vx = Math.abs(b.vx) * (0.92 + Math.random() * 0.16);
+                        } else if (b.x >= maxX) {
+                            b.x = maxX;
+                            b.vx = -Math.abs(b.vx) * (0.92 + Math.random() * 0.16);
+                        }
+
+                        if (b.y <= 0) {
+                            b.y = 0;
+                            b.vy = Math.abs(b.vy) * (0.92 + Math.random() * 0.16);
+                        } else if (b.y >= maxY) {
+                            b.y = maxY;
+                            b.vy = -Math.abs(b.vy) * (0.92 + Math.random() * 0.16);
+                        }
+
+                        b.el.style.transform = `translate3d(${b.x.toFixed(1)}px, ${b.y.toFixed(1)}px, 0)`;
+                    }
+                }
+                requestAnimationFrame(step);
+            }
+
+            requestAnimationFrame(step);
+        })();
+
         const grid = document.getElementById('galleryGrid');
         const categoryFilters = document.getElementById('categoryFilters');
         const lightbox = document.getElementById('lightbox');
