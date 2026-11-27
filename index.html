@@ -8,7 +8,7 @@
     
     <!-- Minilogo / Favicon en la carpeta fotos -->
     <link rel="icon" href="fotos/favicon.ico" type="image/x-icon">
-    <link rel="shortcut icon" href="fotos/favicon.ico" type="image/x-icon">
+    <link rel="shortcut" href="fotos/favicon.ico" type="image/x-icon">
 
     <style>
         :root {
@@ -346,7 +346,6 @@
                 grid-template-columns: 1fr;
                 gap: 10px;
             }
-            /* Fila deslizable horizontal sin amontonar hacia abajo, dejando media píldora visible al final */
             .category-filters {
                 flex-wrap: nowrap;
                 overflow-x: auto;
@@ -447,6 +446,7 @@
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             cursor: pointer;
+            background: rgba(255, 255, 255, 0.05);
         }
 
         .lb-btn {
@@ -560,8 +560,8 @@
                 <h2>📱 Redes sociales</h2>
                 <p style="margin-bottom: 12px; color: var(--text-muted-light);">Síguenos y conoce más de nuestro trabajo:</p>
                 <div class="social-links">
-                    <a href="https://www.tiktok.com/@pdlc.pet" target="_blank" class="social-btn">TikTok</a>
-                    <a href="https://www.instagram.com/pdlc_pet/" target="_blank" class="social-btn">Instagram</a>
+                    <a href="https://www.tiktok.com/@nombre" target="_blank" class="social-btn">TikTok</a>
+                    <a href="https://www.instagram.com/@ombre" target="_blank" class="social-btn">Instagram</a>
                 </div>
             </div>
 
@@ -630,6 +630,7 @@
         let currentIndex = 0;
         let allPhotos = [];
         let visiblePhotos = [];
+        let stepDirection = 1; // 1 = adelante, -1 = atrás
 
         const categoriasConfig = [
             { nombre: 'Camas', carpeta: 'Camas', prefijo: 'Camas', respaldoCantidad: 20 },
@@ -681,7 +682,8 @@
                             .filter(file => file.type === 'file' && /\.(jpe?g|png|webp|gif)$/i.test(file.name))
                             .map(file => ({
                                 ruta: `fotos/${encodeURIComponent(nombreCarpetaUsar)}/${encodeURIComponent(file.name)}`,
-                                categoria: cat.nombre
+                                categoria: cat.nombre,
+                                valida: true
                             }));
                     });
 
@@ -695,29 +697,14 @@
             if (cargadas.length === 0) {
                 categoriasConfig.forEach(cat => {
                     for (let i = 1; i <= cat.respaldoCantidad; i++) {
-                        ['jpeg', 'jpg', 'png', 'webp'].forEach(ext => {
-                            cargadas.push({
-                                ruta: `fotos/${encodeURIComponent(cat.carpeta)}/${cat.prefijo}${i}.${ext}`,
-                                categoria: cat.nombre
-                            });
+                        cargadas.push({
+                            ruta: `fotos/${encodeURIComponent(cat.carpeta)}/${cat.prefijo}${i}.jpeg`,
+                            categoria: cat.nombre,
+                            valida: true
                         });
                     }
                 });
             }
-
-            categoriasConfig.forEach(cat => {
-                const tieneFotos = cargadas.some(f => f.categoria === cat.nombre);
-                if (!tieneFotos) {
-                    for (let i = 1; i <= cat.respaldoCantidad; i++) {
-                        ['jpeg', 'jpg', 'png', 'webp'].forEach(ext => {
-                            cargadas.push({
-                                ruta: `fotos/${encodeURIComponent(cat.carpeta)}/${cat.prefijo}${i}.${ext}`,
-                                categoria: cat.nombre
-                            });
-                        });
-                    }
-                }
-            });
 
             allPhotos = cargadas;
             filtrarGaleria('Todos');
@@ -737,13 +724,25 @@
                 let waLink = `https://wa.me/51944496046?text=${mensajeWhatsApp}`;
 
                 galleryHTML += `
-                    <div class="gallery-item">
-                        <img src="${item.ruta}" alt="PDLC-PET ${item.categoria}" loading="lazy" data-index="${index}" onerror="this.parentElement.style.display='none'">
+                    <div class="gallery-item" data-index="${index}">
+                        <img src="${item.ruta}" alt="PDLC-PET ${item.categoria}" data-index="${index}">
                         <a href="${waLink}" target="_blank" class="btn-lo-quiero">Lo quiero</a>
                     </div>
                 `;
             });
             grid.innerHTML = galleryHTML;
+
+            // Marca como inválidas solo las fotos que realmente fallen al cargar y oculta su tarjeta
+            grid.querySelectorAll('.gallery-item img').forEach((imgEl) => {
+                imgEl.addEventListener('error', () => {
+                    const idx = parseInt(imgEl.getAttribute('data-index'));
+                    if (visiblePhotos[idx]) {
+                        visiblePhotos[idx].valida = false;
+                    }
+                    const card = imgEl.closest('.gallery-item');
+                    if (card) card.style.display = 'none';
+                }, { once: true });
+            });
         }
 
         categoryFilters.addEventListener('click', (e) => {
@@ -774,6 +773,7 @@
         grid.addEventListener('click', (e) => {
             if (e.target.tagName === 'IMG') {
                 currentIndex = parseInt(e.target.getAttribute('data-index'));
+                stepDirection = 1;
                 openLightbox();
             }
         });
@@ -783,19 +783,52 @@
             showNext();
         });
 
+        // Si al pasar de foto una imagen falla, salta automáticamente a la siguiente válida
+        lbImg.addEventListener('error', () => {
+            if (visiblePhotos.length === 0) return;
+            if (visiblePhotos[currentIndex]) {
+                visiblePhotos[currentIndex].valida = false;
+            }
+            const total = visiblePhotos.length;
+            let intentos = 0;
+            while (intentos < total) {
+                currentIndex = (currentIndex + stepDirection + total) % total;
+                intentos++;
+                if (visiblePhotos[currentIndex] && visiblePhotos[currentIndex].valida !== false) {
+                    lbImg.src = visiblePhotos[currentIndex].ruta;
+                    const photoUrl = baseUrl + visiblePhotos[currentIndex].ruta;
+                    const mensajeWhatsApp = encodeURIComponent(`Hola, vengo por su página y estoy interesado en sus productos (${visiblePhotos[currentIndex].categoria}). Me interesa este modelo: ${photoUrl}`);
+                    lbLoQuiero.href = `https://wa.me/51944496046?text=${mensajeWhatsApp}`;
+                    break;
+                }
+            }
+        });
+
         function updateLightboxContent() {
-            let item = visiblePhotos[currentIndex];
+            const total = visiblePhotos.length;
+            if (total === 0) return;
+
+            let intentos = 0;
+            while (intentos < total && (!visiblePhotos[currentIndex] || visiblePhotos[currentIndex].valida === false)) {
+                currentIndex = (currentIndex + stepDirection + total) % total;
+                intentos++;
+            }
+
+            const item = visiblePhotos[currentIndex];
             if (!item) return;
-            let photoUrl = baseUrl + item.ruta;
-            let mensajeWhatsApp = encodeURIComponent(`Hola, vengo por su página y estoy interesado en sus productos (${item.categoria}). Me interesa este modelo: ${photoUrl}`);
-            
+
+            const photoUrl = baseUrl + item.ruta;
+            const mensajeWhatsApp = encodeURIComponent(`Hola, vengo por su página y estoy interesado en sus productos (${item.categoria}). Me interesa este modelo: ${photoUrl}`);
+
+            // Reinicia el src antes de asignar la nueva ruta para forzar carga limpia
+            lbImg.removeAttribute('src');
             lbImg.src = item.ruta;
             lbLoQuiero.href = `https://wa.me/51944496046?text=${mensajeWhatsApp}`;
         }
 
         function openLightbox() {
-            updateLightboxContent();
             lightbox.classList.add('active');
+            updateLightboxContent();
         }
 
         function closeLightbox() {
@@ -804,12 +837,14 @@
 
         function showNext() {
             if (visiblePhotos.length === 0) return;
+            stepDirection = 1;
             currentIndex = (currentIndex + 1) % visiblePhotos.length;
             updateLightboxContent();
         }
 
         function showPrev() {
             if (visiblePhotos.length === 0) return;
+            stepDirection = -1;
             currentIndex = (currentIndex - 1 + visiblePhotos.length) % visiblePhotos.length;
             updateLightboxContent();
         }
