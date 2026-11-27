@@ -124,13 +124,13 @@
             animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* Header / Logo a la izquierda del título con el doble de espacio arriba y abajo */
+        /* Header / Logo a la izquierda del título con amplio espacio arriba y abajo */
         header {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 26px;
-            padding: 36px 12px 20px;
+            padding: 64px 12px 44px;
             text-align: left;
         }
 
@@ -158,6 +158,7 @@
         .brand-text {
             display: flex;
             flex-direction: column;
+            gap: 8px;
         }
 
         h1 {
@@ -167,14 +168,14 @@
             background: linear-gradient(90deg, var(--primary), var(--accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 4px;
+            margin-bottom: 0;
             line-height: 1.1;
         }
 
         .subtitle {
             font-size: 1.1rem;
             color: var(--text-muted);
-            line-height: 1.35;
+            line-height: 1.4;
         }
 
         /* CUADROS DE INFORMACIÓN EN DOS COLUMNAS */
@@ -432,7 +433,7 @@
             }
             header {
                 gap: 18px;
-                padding: 28px 8px 16px;
+                padding: 50px 8px 36px;
             }
             .logo-box {
                 width: 62px;
