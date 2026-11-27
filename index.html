@@ -39,6 +39,7 @@
             flex-direction: column;
             align-items: center;
             padding: 20px 4px;
+            overflow-x: hidden;
         }
 
         .container {
@@ -237,6 +238,8 @@
         .gallery-section {
             margin-top: 10px;
             padding: 0 4px;
+            width: 100%;
+            min-width: 0;
         }
 
         .gallery-section h2 {
@@ -263,6 +266,7 @@
             cursor: pointer;
             transition: all 0.2s ease;
             box-shadow: 0 2px 8px rgba(150, 135, 176, 0.06);
+            white-space: nowrap;
         }
 
         .cat-btn:hover {
@@ -342,12 +346,26 @@
                 grid-template-columns: 1fr;
                 gap: 10px;
             }
+            /* Fila deslizable horizontal sin amontonar hacia abajo, dejando media píldora visible al final */
             .category-filters {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                overflow-y: hidden;
                 gap: 8px;
+                padding: 2px 12px 6px 2px;
+                margin-bottom: 14px;
+                scroll-snap-type: x proximity;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+            .category-filters::-webkit-scrollbar {
+                display: none;
             }
             .cat-btn {
-                padding: 8px 14px;
-                font-size: 0.9rem;
+                flex: 0 0 auto;
+                padding: 8px 13px;
+                font-size: 0.88rem;
+                scroll-snap-align: start;
             }
             .gallery-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -528,7 +546,7 @@
                     </li>
                     <li>
                         <span class="icon">⚡</span>
-                        <div><strong>Productos disponibles:</strong> Listo para recojo inmediato en taller.</div>
+                        <div><strong>Stock disponible:</strong> Listo para recojo inmediato en taller.</div>
                     </li>
                     <li>
                         <span class="icon">🛡️</span>
@@ -610,10 +628,9 @@
         const btnScrollTop = document.getElementById('btn-scroll-top');
 
         let currentIndex = 0;
-        let allPhotos = [];      // Todas las fotos cargadas { ruta, categoria }
-        let visiblePhotos = [];  // Fotos de la categoría actualmente seleccionada
+        let allPhotos = [];
+        let visiblePhotos = [];
 
-        // Configuración de tus carpetas dentro de "fotos/"
         const categoriasConfig = [
             { nombre: 'Camas', carpeta: 'Camas', prefijo: 'Camas', respaldoCantidad: 20 },
             { nombre: 'Casitas', carpeta: 'Casitas', prefijo: 'Casitas', respaldoCantidad: 7 },
@@ -626,9 +643,8 @@
 
         const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
 
-        // Detecta automáticamente tu usuario y repositorio de GitHub Pages
         function getGitHubRepoInfo() {
-            const host = window.location.hostname; // ej: usuario.github.io
+            const host = window.location.hostname;
             const pathParts = window.location.pathname.split('/').filter(Boolean);
             if (host.endsWith('.github.io')) {
                 const owner = host.replace('.github.io', '');
@@ -638,26 +654,33 @@
             return null;
         }
 
-        // Lee todas las imágenes dentro de cada carpeta sin importar el nombre
         async function cargarFotosDesdeGitHub() {
             const repoInfo = getGitHubRepoInfo();
             let cargadas = [];
 
             if (repoInfo) {
                 try {
-                    const promesas = categoriasConfig.map(async (cat) => {
-                        const apiUrl = `https://api.github.com/repos/${repoInfo.owner}/${repoInfo.repo}/contents/fotos/${encodeURIComponent(cat.carpeta)}`;
-                        const res = await fetch(apiUrl);
-                        if (!res.ok) throw new Error('Error consultando carpeta');
-                        const archivos = await res.json();
+                    const rootRes = await fetch(`https://api.github.com/repos/${repoInfo.owner}/${repoInfo.repo}/contents/fotos`);
+                    const rootItems = rootRes.ok ? await rootRes.json() : [];
 
-                        // Ordenar archivos naturalmente (1, 2, 10 en lugar de 1, 10, 2)
+                    const promesas = categoriasConfig.map(async (cat) => {
+                        const normalizar = (str) => str.toLowerCase().replace(/\s+/g, '').trim();
+                        const carpetaReal = rootItems.find(
+                            item => item.type === 'dir' && normalizar(item.name) === normalizar(cat.carpeta)
+                        );
+
+                        const nombreCarpetaUsar = carpetaReal ? carpetaReal.name : cat.carpeta;
+                        const apiUrl = `https://api.github.com/repos/${repoInfo.owner}/${repoInfo.repo}/contents/fotos/${encodeURIComponent(nombreCarpetaUsar)}`;
+                        const res = await fetch(apiUrl);
+                        if (!res.ok) throw new Error(`Error en ${cat.carpeta}`);
+
+                        const archivos = await res.json();
                         archivos.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
 
                         return archivos
                             .filter(file => file.type === 'file' && /\.(jpe?g|png|webp|gif)$/i.test(file.name))
                             .map(file => ({
-                                ruta: `fotos/${encodeURIComponent(cat.carpeta)}/${encodeURIComponent(file.name)}`,
+                                ruta: `fotos/${encodeURIComponent(nombreCarpetaUsar)}/${encodeURIComponent(file.name)}`,
                                 categoria: cat.nombre
                             }));
                     });
@@ -669,17 +692,32 @@
                 }
             }
 
-            // Respaldo automático si lo abres en local o si GitHub API llega al límite por hora
             if (cargadas.length === 0) {
                 categoriasConfig.forEach(cat => {
                     for (let i = 1; i <= cat.respaldoCantidad; i++) {
-                        cargadas.push({
-                            ruta: `fotos/${encodeURIComponent(cat.carpeta)}/${cat.prefijo}${i}.jpeg`,
-                            categoria: cat.nombre
+                        ['jpeg', 'jpg', 'png', 'webp'].forEach(ext => {
+                            cargadas.push({
+                                ruta: `fotos/${encodeURIComponent(cat.carpeta)}/${cat.prefijo}${i}.${ext}`,
+                                categoria: cat.nombre
+                            });
                         });
                     }
                 });
             }
+
+            categoriasConfig.forEach(cat => {
+                const tieneFotos = cargadas.some(f => f.categoria === cat.nombre);
+                if (!tieneFotos) {
+                    for (let i = 1; i <= cat.respaldoCantidad; i++) {
+                        ['jpeg', 'jpg', 'png', 'webp'].forEach(ext => {
+                            cargadas.push({
+                                ruta: `fotos/${encodeURIComponent(cat.carpeta)}/${cat.prefijo}${i}.${ext}`,
+                                categoria: cat.nombre
+                            });
+                        });
+                    }
+                }
+            });
 
             allPhotos = cargadas;
             filtrarGaleria('Todos');
@@ -708,7 +746,6 @@
             grid.innerHTML = galleryHTML;
         }
 
-        // Eventos de los botones de categoría
         categoryFilters.addEventListener('click', (e) => {
             if (e.target.classList.contains('cat-btn')) {
                 document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
@@ -717,10 +754,8 @@
             }
         });
 
-        // Iniciar carga de fotos
         cargarFotosDesdeGitHub();
 
-        // Mostrar u ocultar el botón flotante "Volver arriba" según el scroll
         window.addEventListener('scroll', () => {
             if (window.scrollY > 400) {
                 btnScrollTop.classList.add('show');
@@ -729,7 +764,6 @@
             }
         });
 
-        // Acción del botón volver arriba
         btnScrollTop.addEventListener('click', () => {
             window.scrollTo({
                 top: 0,
@@ -737,7 +771,6 @@
             });
         });
 
-        // Abrir visor al hacer clic en una foto de la galería
         grid.addEventListener('click', (e) => {
             if (e.target.tagName === 'IMG') {
                 currentIndex = parseInt(e.target.getAttribute('data-index'));
@@ -745,7 +778,6 @@
             }
         });
 
-        // Tocar la foto ampliada en pantalla completa pasa a la siguiente
         lbImg.addEventListener('click', (e) => {
             e.stopPropagation();
             showNext();
@@ -790,7 +822,6 @@
             }
         });
 
-        // Gestos táctiles simples para deslizar entre fotos
         let touchStartX = 0;
         let touchStartY = 0;
 
@@ -821,7 +852,6 @@
             }
         }, {passive: true});
 
-        // Soporte de flechas en el teclado para PC
         document.addEventListener('keydown', (e) => {
             if (!lightbox.classList.contains('active')) return;
             if (e.key === 'Escape') closeLightbox();
