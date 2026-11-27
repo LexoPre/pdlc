@@ -692,7 +692,7 @@
                 ambientBg.appendChild(el);
 
                 const angle = Math.random() * Math.PI * 2;
-                const speed = (isMobile ? 26 : 38) + Math.random() * 18; // px por segundo, suave
+                const speed = (isMobile ? 26 : 38) + Math.random() * 18;
 
                 return {
                     el,
@@ -727,7 +727,6 @@
                         b.x += b.vx * dt;
                         b.y += b.vy * dt;
 
-                        // Pequeña variación aleatoria de rumbo para movimiento orgánico
                         if (Math.random() < 0.008) {
                             const jitter = (Math.random() - 0.5) * 0.35;
                             const cos = Math.cos(jitter);
@@ -1022,6 +1021,7 @@
             }
         });
 
+        // Deslizar hacia abajo = siguiente foto; deslizar hacia arriba = foto anterior
         let touchStartX = 0;
         let touchStartY = 0;
 
@@ -1030,27 +1030,25 @@
                 touchStartX = e.touches[0].clientX;
                 touchStartY = e.touches[0].clientY;
             }
-        }, {passive: true});
+        }, { passive: true });
 
         lightbox.addEventListener('touchend', (e) => {
             if (e.changedTouches.length === 1) {
-                let touchEndX = e.changedTouches[0].clientX;
-                let touchEndY = e.changedTouches[0].clientY;
+                const touchEndX = e.changedTouches[0].clientX;
+                const touchEndY = e.changedTouches[0].clientY;
 
-                let diffX = touchStartX - touchEndX;
-                let diffY = touchStartY - touchEndY;
+                const diffX = touchEndX - touchStartX;
+                const diffY = touchEndY - touchStartY; // positivo = deslizó hacia abajo, negativo = hacia arriba
 
-                if (Math.abs(diffX) > Math.abs(diffY)) {
-                    if (Math.abs(diffX) > 40) {
-                        if (diffX > 0) {
-                            showNext();
-                        } else {
-                            showPrev();
-                        }
+                if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 45) {
+                    if (diffY > 0) {
+                        showNext();
+                    } else {
+                        showPrev();
                     }
                 }
             }
-        }, {passive: true});
+        }, { passive: true });
 
         document.addEventListener('keydown', (e) => {
             if (!lightbox.classList.contains('active')) return;
