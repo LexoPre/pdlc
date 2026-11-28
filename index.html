@@ -542,6 +542,7 @@
             z-index: 9999;
             padding: 10px;
             overflow: auto;
+            touch-action: none;
         }
 
         #lightbox.active {
@@ -556,6 +557,7 @@
             align-items: center;
             position: relative;
             overflow: auto;
+            touch-action: none;
         }
 
         #lb-img {
@@ -566,6 +568,9 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             cursor: pointer;
             background: rgba(255, 255, 255, 0.05);
+            touch-action: none;
+            user-select: none;
+            -webkit-user-drag: none;
         }
 
         .lb-btn {
@@ -999,13 +1004,21 @@
             }
         });
 
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let didSwipe = false;
+
         lbImg.addEventListener('click', (e) => {
             e.stopPropagation();
+            if (didSwipe) {
+                didSwipe = false;
+                return;
+            }
             showNext();
         });
 
         imgContainer.addEventListener('click', (e) => {
-            if (e.target === imgContainer) {
+            if (e.target === imgContainer && !didSwipe) {
                 closeLightbox();
             }
         });
@@ -1090,19 +1103,27 @@
         });
 
         lightbox.addEventListener('click', (e) => {
-            if (e.target === lightbox) {
+            if (e.target === lightbox && !didSwipe) {
                 closeLightbox();
             }
         });
 
-        // Deslizar hacia abajo = siguiente foto; deslizar hacia arriba = foto anterior
-        let touchStartX = 0;
-        let touchStartY = 0;
-
+        // Deslizar a los lados (izquierda = siguiente, derecha = anterior) y arriba/abajo (abajo = siguiente, arriba = anterior)
         lightbox.addEventListener('touchstart', (e) => {
             if (e.touches.length === 1) {
                 touchStartX = e.touches[0].clientX;
                 touchStartY = e.touches[0].clientY;
+                didSwipe = false;
+            }
+        }, { passive: true });
+
+        lightbox.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 1) {
+                const dx = Math.abs(e.touches[0].clientX - touchStartX);
+                const dy = Math.abs(e.touches[0].clientY - touchStartY);
+                if (dx > 12 || dy > 12) {
+                    didSwipe = true;
+                }
             }
         }, { passive: true });
 
@@ -1111,16 +1132,26 @@
                 const touchEndX = e.changedTouches[0].clientX;
                 const touchEndY = e.changedTouches[0].clientY;
 
-                const diffX = touchEndX - touchStartX;
-                const diffY = touchEndY - touchStartY;
+                const diffX = touchEndX - touchStartX; // negativo = deslizó a la izquierda, positivo = a la derecha
+                const diffY = touchEndY - touchStartY; // positivo = deslizó hacia abajo, negativo = hacia arriba
 
-                if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffY) > 45) {
+                if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 40) {
+                    if (diffX < 0) {
+                        showNext();
+                    } else {
+                        showPrev();
+                    }
+                } else if (Math.abs(diffY) >= Math.abs(diffX) && Math.abs(diffY) > 40) {
                     if (diffY > 0) {
                         showNext();
                     } else {
                         showPrev();
                     }
                 }
+
+                setTimeout(() => {
+                    didSwipe = false;
+                }, 50);
             }
         }, { passive: true });
 
